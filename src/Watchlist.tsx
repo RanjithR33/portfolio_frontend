@@ -21,7 +21,7 @@ const Watchlist: React.FC<WatchlistProps> = ({ symbols, onRemove }) => {
     fetch(
       `https://financialmodelingprep.com/api/v3/quote/${symbols.join(
         ","
-      )}?apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
+      )}?apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
     )
       .then((res) => res.json())
       .then((data) => {
