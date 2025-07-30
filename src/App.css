@@ -85,12 +85,53 @@ button:hover {
 }
 .chart-container {
   display: flex;
+  align-items: flex-start;
   background-color: white;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
+  gap: 20px; /* Controls spacing between chart and details */
 }
-.chart-container {
-  transition: all 0.3s ease;
+
+
+.stock-details-container {
+  margin-right: 60px;
 }
+
+.stock-details {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+
+.summary-boxes {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.summary-boxes .box {
+  flex: 1;
+  min-width: 150px;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.summary-boxes .box h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #333;
+}
+
+.summary-boxes .box p {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+
