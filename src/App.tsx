@@ -4,6 +4,7 @@ import Watchlist from "./Watchlist";
 import SearchBar from "./SearchBar";
 import StockChart from "./StockChart";
 import StockDetails from "./StockDetails";
+import NewsSentiment from "./NewsSentiment";
 
 function App() {
   const [watchlist, setWatchlist] = useState<string[]>(() => {
@@ -25,16 +26,6 @@ function App() {
     { symbol: "NVDA", quantity: 18, avgPrice: 620 },
     { symbol: "ADBE", quantity: 14, avgPrice: 480 },
     { symbol: "ORCL", quantity: 22, avgPrice: 90 },
-    // { symbol: "INTC", quantity: 40, avgPrice: 50 },
-    // { symbol: "IBM", quantity: 35, avgPrice: 135 },
-    // { symbol: "CRM", quantity: 16, avgPrice: 215 },
-    // { symbol: "PYPL", quantity: 19, avgPrice: 190 },
-    // { symbol: "SHOP", quantity: 11, avgPrice: 1420 },
-    // { symbol: "UBER", quantity: 28, avgPrice: 45 },
-    // { symbol: "LYFT", quantity: 21, avgPrice: 35 },
-    // { symbol: "SQ", quantity: 24, avgPrice: 200 },
-    // { symbol: "BABA", quantity: 13, avgPrice: 230 },
-    // { symbol: "TWTR", quantity: 17, avgPrice: 68 },
   ];
 
   useEffect(() => {
@@ -45,8 +36,7 @@ function App() {
     if (!selectedSymbol) return;
 
     fetch(
-      // `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
-       `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
+      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -98,14 +88,23 @@ function App() {
               borderRadius: "6px",
             }}
           >
-            {watchlist.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            <optgroup label="Watchlist">
+              {watchlist.map((symbol) => (
+                <option key={`watchlist-${symbol}`} value={symbol}>
+                  {symbol}
+                </option>
+              ))}
+            </optgroup>
+
+            <optgroup label="Holdings">
+              {mockHoldings.map((h) => (
+                <option key={`holding-${h.symbol}`} value={h.symbol}>
+                  {h.symbol}
+                </option>
+              ))}
+            </optgroup>
           </select>
 
-          {/* Add / Remove Buttons */}
           <div style={{ display: "flex", gap: "8px" }}>
             <button
               onClick={() => console.log("Add to Portfolio clicked")}
@@ -138,7 +137,6 @@ function App() {
             </button>
           </div>
 
-          {/* Current Holdings */}
           <div style={{ marginTop: "16px" }}>
             <h4>Current Holdings:</h4>
             <ul style={{ listStyle: "none", paddingLeft: 0, fontSize: "14px" }}>
@@ -197,6 +195,9 @@ function App() {
                 <StockDetails symbol={selectedSymbol} />
               </div>
             </div>
+
+            {/* New Section: News + Sentiment */}
+            <NewsSentiment symbol={selectedSymbol} />
           </>
         )}
       </main>
