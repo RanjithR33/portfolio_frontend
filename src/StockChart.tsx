@@ -1,61 +1,44 @@
-import React from "react";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-ChartJS.register(
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  Tooltip,
-  Legend
-);
+import React, { useEffect, useRef } from "react";
 
 interface Props {
-  historical?: { date: string; close: number }[];
+  symbol: string; // Example: "AAPL", "TSLA", "RELIANCE"
 }
 
-const StockChart: React.FC<Props> = ({ historical }) => {
-  if (!historical || historical.length === 0) return null;
+const StockChart: React.FC<Props> = ({ symbol }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const data = {
-    labels: historical.map((item) => item.date).reverse(),
-    datasets: [
-      {
-        label: "Stock Price",
-        data: historical.map((item) => item.close).reverse(),
-        borderColor: "rgba(75,192,192,1)",
-        backgroundColor: "rgba(75,192,192,0.2)",
-        fill: true,
-        tension: 0.3,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: { display: true },
-      tooltip: { enabled: true },
-    },
-    scales: {
-      x: { display: true },
-      y: { display: true },
-    },
-  };
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/tv.js";
+    script.async = true;
+    script.onload = () => {
+      if ((window as any).TradingView) {
+        new (window as any).TradingView.widget({
+          container_id: `tv-chart-${symbol}`,
+          symbol: `NASDAQ:${symbol}`, // or NSE:RELIANCE
+          interval: "D",
+          timezone: "Etc/UTC",
+          theme: "light",
+          style: "1",
+          locale: "en",
+          toolbar_bg: "#f1f3f6",
+          enable_publishing: false,
+          hide_top_toolbar: false,
+          allow_symbol_change: true,
+          width: "100%",
+          height: "500",
+        });
+      }
+    };
+    containerRef.current?.appendChild(script);
+  }, [symbol]);
 
   return (
-    <div style={{ width: "100%", height: "400px", marginTop: "20px" }}>
-      <Line data={data} options={options} />
-    </div>
+    <div
+      id={`tv-chart-${symbol}`}
+      ref={containerRef}
+      style={{ height: "500px", width: "100%", marginTop: "20px" }}
+    />
   );
 };
 

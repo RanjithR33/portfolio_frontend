@@ -190,7 +190,8 @@ function App() {
             </div>
 
             <div className="chart-container">
-              <StockChart historical={chartData} />
+              <StockChart symbol={selectedSymbol} />
+
               <div className="stock-details-container">
                 <StockDetails symbol={selectedSymbol} />
               </div>
