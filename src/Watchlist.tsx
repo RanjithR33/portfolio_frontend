@@ -1,58 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-interface WatchlistProps {
+type Props = {
   symbols: string[];
   onRemove: (symbol: string) => void;
-}
+};
 
-interface StockData {
-  symbol: string;
-  price: number;
-  change: number;
-  changesPercentage: number;
-}
-
-const Watchlist: React.FC<WatchlistProps> = ({ symbols, onRemove }) => {
-  const [data, setData] = useState<StockData[]>([]);
-
-  useEffect(() => {
-    if (symbols.length === 0) return;
-
-    fetch(
-      `https://financialmodelingprep.com/api/v3/quote/${symbols.join(
-        ","
-      )}?apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setData(data);
-        } else {
-          console.error("Invalid API response:", data);
-          setData([]); // Avoid crash
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching stock data:", error);
-        setData([]); // Avoid crash
-      });
-  }, [symbols]);
-
+const Watchlist: React.FC<Props> = ({ symbols, onRemove }) => {
   return (
-    <div>
-      <h3>Your Watchlist</h3>
-      <ul className="watchlist">
-        {data.map((stock) => (
-          <li key={stock.symbol}>
-            <strong>{stock.symbol}</strong>
-            <span className={stock.change >= 0 ? "green" : "red"}>
-              ${stock.price.toFixed(2)} ({stock.change.toFixed(2)} |{" "}
-              {stock.changesPercentage.toFixed(2)}%)
-            </span>
-            <button onClick={() => onRemove(stock.symbol)}>✖</button>
-          </li>
-        ))}
-      </ul>
+    <div style={{ marginTop: "20px" }}>
+      <h4>Watchlist</h4>
+      {symbols.length === 0 ? (
+        <p style={{ fontStyle: "italic", color: "#777" }}>
+          No stocks in this watchlist.
+        </p>
+      ) : (
+        <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
+          {symbols.map((symbol) => (
+            <li
+              key={symbol}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "6px 0",
+                borderBottom: "1px solid #ddd",
+              }}
+            >
+              <span>{symbol}</span>
+              <button
+                style={{
+                  backgroundColor: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "2px 6px",
+                  cursor: "pointer",
+                }}
+                onClick={() => onRemove(symbol)}
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

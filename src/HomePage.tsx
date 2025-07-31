@@ -6,31 +6,20 @@ import StockDetails from "./StockDetails";
 import NewsSentiment from "./NewsSentiment";
 import "./App.css";
 
+type Watchlists = {
+  [name: string]: string[];
+};
+
 const HomePage: React.FC = () => {
-  const [watchlist, setWatchlist] = useState<string[]>(() => {
-    const saved = localStorage.getItem("watchlist");
-    return saved ? JSON.parse(saved) : ["AAPL", "MSFT", "GOOG", "TSLA", "AMZN"];
+  const [watchlists, setWatchlists] = useState<Watchlists>({
+    Default: ["AAPL", "MSFT", "GOOG"],
   });
 
+  const [currentListName, setCurrentListName] = useState("Default");
+  const [selectedSymbol, setSelectedSymbol] = useState("AAPL");
   const [chartData, setChartData] = useState<any[]>([]);
-  const [selectedSymbol, setSelectedSymbol] = useState<string>("AAPL");
 
-  const mockHoldings = [
-    { symbol: "AAPL", quantity: 50, avgPrice: 180 },
-    { symbol: "TSLA", quantity: 20, avgPrice: 750 },
-    { symbol: "AMZN", quantity: 10, avgPrice: 3100 },
-    { symbol: "GOOG", quantity: 15, avgPrice: 2700 },
-    { symbol: "MSFT", quantity: 25, avgPrice: 295 },
-    { symbol: "NFLX", quantity: 12, avgPrice: 550 },
-    { symbol: "META", quantity: 30, avgPrice: 330 },
-    { symbol: "NVDA", quantity: 18, avgPrice: 620 },
-    { symbol: "ADBE", quantity: 14, avgPrice: 480 },
-    { symbol: "ORCL", quantity: 22, avgPrice: 90 },
-  ];
-
-  useEffect(() => {
-    localStorage.setItem("watchlist", JSON.stringify(watchlist));
-  }, [watchlist]);
+  const currentWatchlist = watchlists[currentListName] || [];
 
   useEffect(() => {
     if (!selectedSymbol) return;
@@ -44,24 +33,51 @@ const HomePage: React.FC = () => {
           setChartData(data.historical.slice(0, 30).reverse());
         }
       })
-      .catch((error) => {
-        console.error("Error fetching chart data:", error);
+      .catch((err) => {
+        console.error("Chart API error:", err);
         setChartData([]);
       });
   }, [selectedSymbol]);
 
   const addToWatchlist = (symbol: string) => {
-    if (!watchlist.includes(symbol)) {
-      setWatchlist([...watchlist, symbol]);
+    if (!watchlists[currentListName].includes(symbol)) {
+      setWatchlists((prev) => ({
+        ...prev,
+        [currentListName]: [...prev[currentListName], symbol],
+      }));
     }
   };
 
   const removeFromWatchlist = (symbol: string) => {
-    setWatchlist(watchlist.filter((item) => item !== symbol));
-    if (selectedSymbol === symbol && watchlist.length > 1) {
-      setSelectedSymbol(watchlist.find((s) => s !== symbol) || "AAPL");
+    const updatedList = watchlists[currentListName].filter((s) => s !== symbol);
+    setWatchlists((prev) => ({
+      ...prev,
+      [currentListName]: updatedList,
+    }));
+
+    if (selectedSymbol === symbol && updatedList.length > 0) {
+      setSelectedSymbol(updatedList[0]);
     }
   };
+
+  const handleCreateWatchlist = () => {
+    const name = prompt("Enter new watchlist name:");
+    if (name && !watchlists[name]) {
+      setWatchlists((prev) => ({
+        ...prev,
+        [name]: [],
+      }));
+      setCurrentListName(name);
+    }
+  };
+
+  const mockHoldings = [
+    { symbol: "AAPL", quantity: 50, avgPrice: 180 },
+    { symbol: "TSLA", quantity: 20, avgPrice: 750 },
+    { symbol: "AMZN", quantity: 10, avgPrice: 3100 },
+    { symbol: "GOOG", quantity: 15, avgPrice: 2700 },
+    { symbol: "MSFT", quantity: 25, avgPrice: 295 },
+  ];
 
   const latestPrice = chartData[chartData.length - 1]?.close || 0;
   const invested = 10000;
@@ -73,38 +89,71 @@ const HomePage: React.FC = () => {
   return (
     <div className="app">
       <aside className="sidebar">
-        <SearchBar onAdd={addToWatchlist} />
-        <Watchlist symbols={watchlist} onRemove={removeFromWatchlist} />
+        <div style={{ marginBottom: "20px" }}>
+          <label>Current Watchlist:</label>
+          <select
+            value={currentListName}
+            onChange={(e) => setCurrentListName(e.target.value)}
+            style={{ width: "100%", padding: "6px", marginTop: "5px" }}
+          >
+            {Object.keys(watchlists).map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
 
-        <div style={{ padding: "10px" }}>
+          <button
+            style={{
+              marginTop: "6px",
+              width: "100%",
+              padding: "6px",
+              backgroundColor: "#28a745",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+            }}
+            onClick={handleCreateWatchlist}
+          >
+            + New Watchlist
+          </button>
+        </div>
+
+        <div style={{ marginBottom: "20px" }}>
+          <SearchBar onAdd={addToWatchlist} />
+        </div>
+
+        <div style={{ marginBottom: "20px" }}>
+          <Watchlist
+            symbols={currentWatchlist}
+            onRemove={removeFromWatchlist}
+          />
+        </div>
+
+        <div style={{ marginBottom: "20px" }}>
           <h4>Select stock for chart:</h4>
           <select
             onChange={(e) => setSelectedSymbol(e.target.value)}
             value={selectedSymbol}
-            style={{
-              width: "100%",
-              padding: "6px",
-              marginBottom: "10px",
-              borderRadius: "6px",
-            }}
+            style={{ width: "100%", padding: "6px", borderRadius: "6px" }}
           >
             <optgroup label="Watchlist">
-              {watchlist.map((symbol) => (
-                <option key={`watchlist-${symbol}`} value={symbol}>
-                  {symbol}
+              {currentWatchlist.map((s) => (
+                <option key={s} value={s}>
+                  {s}
                 </option>
               ))}
             </optgroup>
             <optgroup label="Holdings">
               {mockHoldings.map((h) => (
-                <option key={`holding-${h.symbol}`} value={h.symbol}>
+                <option key={h.symbol} value={h.symbol}>
                   {h.symbol}
                 </option>
               ))}
             </optgroup>
           </select>
 
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
             <button
               onClick={() => console.log("Add to Portfolio clicked")}
               style={{
@@ -135,30 +184,30 @@ const HomePage: React.FC = () => {
               Remove
             </button>
           </div>
+        </div>
 
-          <div style={{ marginTop: "16px" }}>
-            <h4>Current Holdings:</h4>
-            <ul style={{ listStyle: "none", paddingLeft: 0, fontSize: "14px" }}>
-              {mockHoldings.map((h) => (
-                <li
-                  key={h.symbol}
-                  style={{
-                    marginBottom: "8px",
-                    padding: "6px 8px",
-                    backgroundColor: "#f9f9f9",
-                    borderRadius: "6px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <span>
-                    <strong>{h.symbol}</strong> ({h.quantity} shares)
-                  </span>
-                  <span style={{ color: "#666" }}>${h.avgPrice}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div>
+          <h4>Current Holdings:</h4>
+          <ul style={{ listStyle: "none", paddingLeft: 0, fontSize: "14px" }}>
+            {mockHoldings.map((h) => (
+              <li
+                key={h.symbol}
+                style={{
+                  marginBottom: "8px",
+                  padding: "6px 8px",
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "6px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span>
+                  <strong>{h.symbol}</strong> ({h.quantity} shares)
+                </span>
+                <span style={{ color: "#666" }}>${h.avgPrice}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </aside>
 
