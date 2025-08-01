@@ -13,7 +13,7 @@ const NewsSentiment = ({ symbol }: { symbol: string }) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const API_KEY = "pub_c6693b24a8b548abb1d3eecae01eaec2"; // Replace with your key
+  const API_KEY = "pub_a370ba3baefe47dfb6e03144b10a90a3"; // Replace with your key
 
   useEffect(() => {
     setLoading(true);
@@ -41,15 +41,19 @@ const NewsSentiment = ({ symbol }: { symbol: string }) => {
   return (
     <div
       style={{
-        background: "#fff",
+        background: "rgba(255, 255, 255, 0.1)", // Semi-transparent white background
         padding: 16,
-        borderRadius: 8,
+        borderRadius: 12,
         marginTop: 20,
+        backdropFilter: "blur(8px)", // Glassmorphism blur effect
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)", // Soft shadow for depth
+        color: "#fff", // Text color for better contrast
+        border: "1px solid rgba(255, 255, 255, 0.2)", // Light border for glass effect
       }}
     >
-      <h3 style={{ marginBottom: "12px" }}>Stock News</h3>
+      <h3 style={{ marginBottom: "12px", color: "#fff" }}>Stock News</h3>
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: "#db4437" }}>{error}</p>} {/* Error color in red */}
 
       <ul style={{ listStyle: "disc", paddingLeft: 20 }}>
         {news.map((item, index) => (
@@ -58,15 +62,19 @@ const NewsSentiment = ({ symbol }: { symbol: string }) => {
               href={item.link}
               target="_blank"
               rel="noreferrer"
-              style={{ fontWeight: "bold", textDecoration: "none" }}
+              style={{
+                fontWeight: "bold",
+                textDecoration: "none",
+                color: "#2196F3", // Link color
+              }}
             >
               {item.title}
             </a>
-            <div style={{ fontSize: "12px", color: "#555" }}>
+            <div style={{ fontSize: "12px", color: "#ddd" }}>
               {item.source_id} – {new Date(item.pubDate).toLocaleString()}
             </div>
             {item.description && (
-              <p style={{ fontSize: "13px", marginTop: 4 }}>
+              <p style={{ fontSize: "13px", marginTop: 4, color: "#ddd" }}>
                 {item.description.slice(0, 120)}...
               </p>
             )}

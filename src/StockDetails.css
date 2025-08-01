@@ -1,20 +1,26 @@
 /* src/StockDetails.css */
+
 .stock-details {
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 15px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-left: 20px;
   width: 280px;
   font-size: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
 }
 
 .stock-details h4 {
   margin-bottom: 10px;
   font-size: 16px;
+  color: #e0e0e0;
 }
 
 .stock-details p {
   margin: 5px 0;
+  color: #f5f5f5;
 }

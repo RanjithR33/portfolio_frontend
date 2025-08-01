@@ -10,7 +10,7 @@ type Watchlists = {
   [name: string]: string[];
 };
 
-const HomePage: React.FC = () => {
+const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const [watchlists, setWatchlists] = useState<Watchlists>({
     Default: ["AAPL", "MSFT", "GOOG"],
   });
@@ -25,7 +25,7 @@ const HomePage: React.FC = () => {
     if (!selectedSymbol) return;
 
     fetch(
-      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
+      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -87,7 +87,7 @@ const HomePage: React.FC = () => {
   const rateOfReturn = (profitLoss / invested) * 100;
 
   return (
-    <div className="app">
+    <div className={`app ${theme}`}> {/* Add the theme class dynamically */}
       <aside className="sidebar">
         <div style={{ marginBottom: "20px" }}>
           <label>Current Watchlist:</label>
@@ -195,16 +195,19 @@ const HomePage: React.FC = () => {
                 style={{
                   marginBottom: "8px",
                   padding: "6px 8px",
-                  backgroundColor: "#f9f9f9",
+                  backgroundColor: theme === "light" ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.2)", /* Transparent background with slight white tint */
                   borderRadius: "6px",
                   display: "flex",
                   justifyContent: "space-between",
+                  backdropFilter: "blur(8px)", /* Glassmorphism blur effect */
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", /* Slight shadow for depth */
+                  color: "#fff", /* White text for contrast */
                 }}
               >
                 <span>
                   <strong>{h.symbol}</strong> ({h.quantity} shares)
                 </span>
-                <span style={{ color: "#666" }}>${h.avgPrice}</span>
+                <span style={{ color: "#fff" }}>${h.avgPrice}</span>
               </li>
             ))}
           </ul>
