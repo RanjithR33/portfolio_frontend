@@ -7,28 +7,35 @@ import NewsSentiment from "./NewsSentiment";
 import "./App.css";
 
 // Define types for API responses
+type Asset = {
+  asset_id: number;
+  ticker_symbol: string;
+ 
+};
+
 type Watchlists = {
   [name: string]: {
     id: number;
     name: string;
-    items: string[]; // Array of ticker symbols
+    items: Asset[];
   };
 };
-<<<<<<< Updated upstream
+
+// <<<<<<< Updated upstream
+
+// const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
+//   const [watchlists, setWatchlists] = useState<Watchlists>({
+//     Default: ["AAPL", "MSFT", "GOOG"],
+//   });
+
+//   const [currentListName, setCurrentListName] = useState("Default");
+//   const [selectedSymbol, setSelectedSymbol] = useState("AAPL");
 
 const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
-  const [watchlists, setWatchlists] = useState<Watchlists>({
-    Default: ["AAPL", "MSFT", "GOOG"],
-  });
-
-  const [currentListName, setCurrentListName] = useState("Default");
-  const [selectedSymbol, setSelectedSymbol] = useState("AAPL");
-=======
-const HomePage: React.FC = () => {
   const [watchlists, setWatchlists] = useState<Watchlists>({});
   const [currentListName, setCurrentListName] = useState<string>("Default");
   const [selectedSymbol, setSelectedSymbol] = useState<string>("AAPL");
->>>>>>> Stashed changes
+
   const [chartData, setChartData] = useState<any[]>([]);
   const [portfolioId] = useState<number>(1); // Example portfolioId, set this dynamically
  const mockHoldings = [
@@ -46,28 +53,27 @@ const HomePage: React.FC = () => {
   const profitLoss = currentValue - invested;
   const rateOfReturn = (profitLoss / invested) * 100;
   useEffect(() => {
-    // Fetch watchlists from API when the component loads
     fetch(`http://127.0.0.1:5000/api/v1/watchlists/1`)
       .then((res) => res.json())
       .then((data) => {
         const watchlistMap: Watchlists = {};
-
+  
         data.forEach((watchlist: any) => {
-          // Extract ticker symbols from the items array
           watchlistMap[watchlist.name] = {
             id: watchlist.id,
             name: watchlist.name,
-            items: watchlist.items.map((item: any) => item.ticker_symbol), // Extract ticker_symbol
+            items: watchlist.items || [],
           };
         });
-
+  
         setWatchlists(watchlistMap);
-        if (data.length > 0) setCurrentListName(data[0].name); // Set the first watchlist as the default
+        if (data.length > 0) setCurrentListName(data[0].name);
       })
       .catch((err) => {
         console.error("Error fetching watchlists:", err);
       });
-}, [portfolioId]);
+  }, [portfolioId]);
+  
   useEffect(() => {
     if (!selectedSymbol) return;
 
@@ -85,57 +91,79 @@ const HomePage: React.FC = () => {
         setChartData([]);
       });
   }, [selectedSymbol]);
-
   const addToWatchlist = (symbol: string) => {
-    if (!watchlists[currentListName].items.includes(symbol)) {
-      // Call API to add item to watchlist
-      fetch(`http://localhost:5000/api/v1/watchlists/${watchlists[currentListName].id}/items`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticker: symbol }),
-      })
-        .then((res) => res.json())
-        .then((newItem) => {
-          setWatchlists((prev) => {
-            const updatedWatchlist = {
-              ...prev,
-              [currentListName]: {
-                ...prev[currentListName],
-                items: [...prev[currentListName].items, symbol],
-              },
-            };
-            return updatedWatchlist;
-          });
-        })
-        .catch((err) => console.error("Error adding item:", err));
+    const currentList = watchlists[currentListName];
+    console.log(JSON.stringify({ ticker: symbol }));
+    // Prevent duplicates
+    if (Array.isArray(currentList?.items) && currentList.items.some(item => item.ticker_symbol === symbol)) {
+      return;
     }
-  };
-
-  const removeFromWatchlist = (symbol: string) => {
-    const updatedList = watchlists[currentListName].items.filter((s) => s !== symbol);
-
-    // Call API to remove item from watchlist
-    fetch(`http://localhost:5000/api/v1/watchlists/${watchlists[currentListName].id}/items/${symbol}`, {
-      method: "DELETE",
+  
+    fetch(`http://localhost:5000/api/v1/watchlists/${currentList.id}/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticker: symbol }),
     })
-      .then(() => {
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to add item to watchlist");
+        return res.json();
+      })
+      .then((data) => {
+      
+        const newAsset: Asset = {
+          asset_id: data.asset_id,
+          ticker_symbol: symbol,
+        };
+  
         setWatchlists((prev) => {
-          const updatedWatchlist = {
+          const updatedItems = [...(prev[currentListName]?.items || []), newAsset];
+          return {
             ...prev,
             [currentListName]: {
               ...prev[currentListName],
-              items: updatedList,
+              items: updatedItems,
             },
           };
-          return updatedWatchlist;
         });
       })
-      .catch((err) => console.error("Error removing item:", err));
-
-    if (selectedSymbol === symbol && updatedList.length > 0) {
-      setSelectedSymbol(updatedList[0]);
-    }
+      .catch((err) => console.error("Error adding item:", err));
   };
+  const removeFromWatchlist = (symbol: string) => {
+    const currentList = watchlists[currentListName];
+    if (!currentList) return;
+  
+    // Find the asset by ticker_symbol
+    const assetToRemove = currentList.items.find((item) => item.ticker_symbol === symbol);
+    if (!assetToRemove) return;
+  
+    const updatedItems = currentList.items.filter(
+      (item) => item.asset_id !== assetToRemove.asset_id
+    );
+  
+    // API call using asset_id
+    fetch(
+      `http://localhost:5000/api/v1/watchlists/${currentList.id}/items/${symbol}`,
+      {
+        method: "DELETE",
+      }
+    )
+      .then(() => {
+        setWatchlists((prev) => ({
+          ...prev,
+          [currentListName]: {
+            ...prev[currentListName],
+            items: updatedItems,
+          },
+        }));
+  
+        // Update selectedSymbol if the removed one was selected
+        if (selectedSymbol === symbol && updatedItems.length > 0) {
+          setSelectedSymbol(updatedItems[0].ticker_symbol);
+        }
+      })
+      .catch((err) => console.error("Error removing item:", err));
+  };
+  
 
   const handleCreateWatchlist = () => {
     const name = prompt("Enter new watchlist name:");
@@ -197,12 +225,11 @@ const HomePage: React.FC = () => {
           <SearchBar onAdd={addToWatchlist} />
         </div>
 
-        <div style={{ marginBottom: "20px" }}>
-          <Watchlist
-            symbols={watchlists[currentListName]?.items || []}
-            onRemove={removeFromWatchlist}
-          />
-        </div>
+        <Watchlist
+  items={watchlists[currentListName]?.items || []}
+  onRemove={removeFromWatchlist}
+/>
+
 
         <div style={{ marginBottom: "20px" }}>
           <h4>Select stock for chart:</h4>
@@ -211,13 +238,14 @@ const HomePage: React.FC = () => {
             value={selectedSymbol}
             style={{ width: "100%", padding: "6px", borderRadius: "6px" }}
           >
-            <optgroup label="Watchlist">
-              {watchlists[currentListName]?.items.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </optgroup>
+           <optgroup label="Watchlist">
+  {watchlists[currentListName]?.items?.map((item) => (
+    <option key={item.asset_id} value={item.ticker_symbol}>
+      {item.ticker_symbol}
+    </option>
+  ))}
+</optgroup>
+
             <optgroup label="Holdings">
               {mockHoldings.map((h) => (
                 <option key={h.symbol} value={h.symbol}>

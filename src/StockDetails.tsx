@@ -25,12 +25,9 @@ function StockDetails({ symbol }: StockDetailsProps) {
   useEffect(() => {
     fetch(
       // `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
-<<<<<<< Updated upstream
-       `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
-=======
+      //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
       `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=5r0X2y0O08MWTyCtJO0y8S1qo24H4K2D`
       //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
->>>>>>> Stashed changes
     )
       .then((res) => res.json())
       .then((data) => {

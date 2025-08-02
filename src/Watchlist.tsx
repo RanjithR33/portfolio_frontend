@@ -1,23 +1,28 @@
 import React from "react";
 
+type Item = {
+  ticker_symbol: string;
+  asset_id: number;
+};
+
 type Props = {
-  symbols: string[];
+  items: Item[];
   onRemove: (symbol: string) => void;
 };
 
-const Watchlist: React.FC<Props> = ({ symbols, onRemove }) => {
+const Watchlist: React.FC<Props> = ({ items, onRemove }) => {
   return (
     <div style={{ marginTop: "20px" }}>
       <h4>Watchlist</h4>
-      {symbols.length === 0 ? (
+      {items.length === 0 ? (
         <p style={{ fontStyle: "italic", color: "#777" }}>
           No stocks in this watchlist.
         </p>
       ) : (
         <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-          {symbols.map((symbol) => (
+          {items.map((item) => (
             <li
-              key={symbol}
+              key={item.asset_id} // use asset_id as unique key
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -26,7 +31,7 @@ const Watchlist: React.FC<Props> = ({ symbols, onRemove }) => {
                 borderBottom: "1px solid #ddd",
               }}
             >
-              <span>{symbol}</span>
+              <span>{item.ticker_symbol}</span>
               <button
                 style={{
                   backgroundColor: "#dc3545",
@@ -36,7 +41,7 @@ const Watchlist: React.FC<Props> = ({ symbols, onRemove }) => {
                   padding: "2px 6px",
                   cursor: "pointer",
                 }}
-                onClick={() => onRemove(symbol)}
+                onClick={() => onRemove(item.ticker_symbol)}
               >
                 Remove
               </button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-// StockDetails Component to fetch stock price dynamically
+// StockDetails Component remains unchanged
 function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetched: (price: number) => void }) {
   const [quote, setQuote] = useState<any | null>(null);
 
@@ -12,7 +12,6 @@ function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetch
       .then((data) => {
         if (data && data.length > 0) {
           setQuote(data[0]);
-          // Pass the fetched price to the parent component
           onPriceFetched(data[0].price);
         }
       });
@@ -32,38 +31,31 @@ function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetch
       </p>
       <p>🔼 High: ${quote.dayHigh}</p>
       <p>🔽 Low: ${quote.dayLow}</p>
-
     </div>
   );
 }
 
-// Main TransactionPage Component
 function TransactionPage() {
   const [transactionType, setTransactionType] = useState<"buy" | "sell">("buy");
+  const [orderType, setOrderType] = useState<"MARKET" | "LIMIT" | "STOP_LOSS">("MARKET");
   const [quantity, setQuantity] = useState<number>(0);
-  const [price, setPrice] = useState<number>(0); // This will be autofilled from StockDetails
-  const [selectedStock, setSelectedStock] = useState<string>("AAPL"); // Default ticker
+  const [price, setPrice] = useState<number>(0);
+  const [selectedStock, setSelectedStock] = useState<string>("AAPL");
   const [transactionDate] = useState<string>(new Date().toISOString().split("T")[0]);
-  const [description, setDescription] = useState<string>("");
+  // const [description, setDescription] = useState<string>("");
 
-  // Function to handle the transaction form submission
   const handleTransaction = () => {
     const transactionData = {
       account_id: 1,
+      ticker: selectedStock,
       transaction_type: transactionType.toUpperCase(),
-      total_amount: price * quantity,
-      transaction_date: transactionDate,
-      asset_ticker: selectedStock,
-      quantity,
-      price_per_unit: price,
-      description,
+      order_type: orderType,
+      quantity: quantity
     };
 
-    fetch("http://localhost:5000/api/v1/transactions/", {
+    fetch("http://localhost:5000/api/v1/orders/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(transactionData),
     })
       .then((response) => response.json())
@@ -78,27 +70,24 @@ function TransactionPage() {
         console.error("Error:", error);
         alert("There was an issue processing the transaction.");
       });
+      console.log("Transaction Data:", transactionData);
   };
 
-  // Function to handle the fetched price from StockDetails
   const handlePriceFetched = (fetchedPrice: number) => {
     setPrice(fetchedPrice);
   };
 
-  // Function to handle quantity change and recalculate amount
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const enteredQuantity = Number(e.target.value);
     setQuantity(enteredQuantity);
   };
 
-  // Calculate the total amount (price * quantity)
   const amount = price * quantity;
 
   return (
     <div className="transaction-page" style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}>
       <h2>Transaction Page</h2>
 
-      {/* Stock Ticker Selection */}
       <div style={{ marginBottom: "20px" }}>
         <label>
           Stock Ticker:
@@ -106,32 +95,20 @@ function TransactionPage() {
             type="text"
             value={selectedStock}
             onChange={(e) => setSelectedStock(e.target.value.toUpperCase())}
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              marginBottom: "10px",
-            }}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
           />
         </label>
       </div>
 
-      {/* Stock Details (Price) */}
-      <StockDetails symbol={selectedStock} onPriceFetched={handlePriceFetched} /> {/* Display stock details */}
+      <StockDetails symbol={selectedStock} onPriceFetched={handlePriceFetched} />
 
-      {/* Transaction Type Selection (Buy/Sell) */}
       <div style={{ marginBottom: "20px" }}>
         <label>
           Transaction Type:
           <select
             value={transactionType}
             onChange={(e) => setTransactionType(e.target.value as "buy" | "sell")}
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              marginBottom: "10px",
-            }}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
           >
             <option value="buy">Buy</option>
             <option value="sell">Sell</option>
@@ -139,7 +116,21 @@ function TransactionPage() {
         </label>
       </div>
 
-      {/* Quantity Input */}
+      <div style={{ marginBottom: "20px" }}>
+        <label>
+          Order Type:
+          <select
+            value={orderType}
+            onChange={(e) => setOrderType(e.target.value as "MARKET" | "LIMIT" | "STOP_LOSS")}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
+          >
+            <option value="MARKET">Market</option>
+            <option value="LIMIT">Limit</option>
+            <option value="STOP_LOSS">Stop Loss</option>
+          </select>
+        </label>
+      </div>
+
       <div style={{ marginBottom: "20px" }}>
         <label>
           Quantity:
@@ -147,17 +138,11 @@ function TransactionPage() {
             type="number"
             value={quantity}
             onChange={handleQuantityChange}
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              marginBottom: "10px",
-            }}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
           />
         </label>
       </div>
 
-      {/* Amount Calculation */}
       <div style={{ marginBottom: "20px" }}>
         <label>
           Amount:
@@ -165,53 +150,13 @@ function TransactionPage() {
             type="number"
             value={amount.toFixed(2)}
             disabled
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              marginBottom: "10px",
-            }}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
           />
         </label>
       </div>
 
-      {/* Description Input */}
-      <div style={{ marginBottom: "20px" }}>
-        <label>
-          Description:
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              marginBottom: "10px",
-            }}
-          />
-        </label>
-      </div>
+  
 
-      {/* Transaction Date (autofilled with today's date) */}
-      <div style={{ marginBottom: "20px" }}>
-        <label>
-          Transaction Date:
-          <input
-            type="date"
-            value={transactionDate}
-            disabled
-            style={{
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              marginBottom: "10px",
-            }}
-          />
-        </label>
-      </div>
-
-      {/* Submit Button */}
       <button
         onClick={handleTransaction}
         style={{
