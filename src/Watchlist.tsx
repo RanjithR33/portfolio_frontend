@@ -22,7 +22,7 @@ const Watchlist: React.FC<Props> = ({ items, onRemove }) => {
         <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
           {items.map((item) => (
             <li
-              key={item.asset_id} // use asset_id as unique key
+              key={item.asset_id} // Use asset_id as unique key
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -34,16 +34,17 @@ const Watchlist: React.FC<Props> = ({ items, onRemove }) => {
               <span>{item.ticker_symbol}</span>
               <button
                 style={{
-                  backgroundColor: "#dc3545",
-                  color: "white",
+                  backgroundColor: "transparent", // Transparent background for "X"
+                  color: "#dc3545", // Red color for the "X"
                   border: "none",
-                  borderRadius: "4px",
-                  padding: "2px 6px",
+                  fontSize: "16px", // Adjust font size
                   cursor: "pointer",
+                  padding: "0",
+                  marginLeft: "8px", // Space between ticker and "X"
                 }}
                 onClick={() => onRemove(item.ticker_symbol)}
               >
-                Remove
+                X
               </button>
             </li>
           ))}

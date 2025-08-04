@@ -42,7 +42,10 @@ function TransactionPage() {
   const [price, setPrice] = useState<number>(0);
   const [selectedStock, setSelectedStock] = useState<string>("AAPL");
   const [transactionDate] = useState<string>(new Date().toISOString().split("T")[0]);
-  // const [description, setDescription] = useState<string>("");
+
+  // New state for feedback messages
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
 
   const handleTransaction = () => {
     const transactionData = {
@@ -61,16 +64,19 @@ function TransactionPage() {
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
-          alert("Transaction successful!");
+          setMessage("Transaction successful!");
+          setMessageType("success");
         } else if (data.error) {
-          alert(`Error: ${data.error}`);
+          setMessage(`Error: ${data.error}`);
+          setMessageType("error");
         }
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("There was an issue processing the transaction.");
+        setMessage("There was an issue processing the transaction.");
+        setMessageType("error");
       });
-      console.log("Transaction Data:", transactionData);
+    console.log("Transaction Data:", transactionData);
   };
 
   const handlePriceFetched = (fetchedPrice: number) => {
@@ -87,6 +93,22 @@ function TransactionPage() {
   return (
     <div className="transaction-page" style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}>
       <h2>Transaction Page</h2>
+
+      {/* Feedback Message */}
+      {message && (
+        <div
+          style={{
+            padding: "10px",
+            marginBottom: "20px",
+            backgroundColor: messageType === "success" ? "#28a745" : "#dc3545",
+            color: "white",
+            borderRadius: "6px",
+            textAlign: "center",
+          }}
+        >
+          {message}
+        </div>
+      )}
 
       <div style={{ marginBottom: "20px" }}>
         <label>
@@ -155,18 +177,18 @@ function TransactionPage() {
         </label>
       </div>
 
-  
-
+      {/* Submit Button with Disabled Condition */}
       <button
         onClick={handleTransaction}
+        disabled={quantity === 0}
         style={{
           width: "100%",
           padding: "10px",
-          backgroundColor: "#007bff",
+          backgroundColor: quantity === 0 ? "#6c757d" : "#007bff", // Disabled button color
           color: "white",
           border: "none",
           borderRadius: "6px",
-          cursor: "pointer",
+          cursor: quantity === 0 ? "not-allowed" : "pointer", // Disable cursor when quantity is 0
         }}
       >
         Submit Transaction
