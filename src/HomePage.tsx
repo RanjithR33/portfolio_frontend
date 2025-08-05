@@ -20,6 +20,19 @@ type Watchlists = {
     items: Asset[];
   };
 };
+// Add this to the top of HomePage.tsx
+type Holding = {
+  holding_id: number;
+  account_name: string;
+  ticker_symbol: string;
+  asset_name: string;
+  quantity: number;
+  average_price: number;
+  cost_basis: number;
+  market_value: number;
+  unrealized_pnl: number;
+  last_price: number | null;
+};
 
 const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const [watchlists, setWatchlists] = useState<Watchlists>({});
@@ -46,7 +59,22 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const currentValue = latestPrice * shares;
   const profitLoss = currentValue - invested;
   const rateOfReturn = (profitLoss / invested) * 100;
+  const [holdings, setHoldings] = useState<Holding[]>([]);
 
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/holdings-value`)
+      .then(res => res.json())
+      .then(value => {
+        // Optionally display total holdings value elsewhere
+      })
+      .catch(err => console.error("Error fetching total value:", err));
+  
+    fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/holdings`)
+      .then(res => res.json())
+      .then((data) => setHoldings(data))
+      .catch(err => console.error("Error fetching detailed holdings:", err));
+  }, [portfolioId]);
+  
   useEffect(() => {
     fetch(`http://127.0.0.1:5000/api/v1/watchlists/1`)
       .then((res) => res.json())
@@ -224,12 +252,17 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
             </optgroup>
 
             <optgroup label="Holdings">
-              {mockHoldings.map((h) => (
-                <option key={h.symbol} value={h.symbol}>
-                  {h.symbol}
-                </option>
-              ))}
-            </optgroup>
+            {Array.from(
+  new Set(holdings.map((h) => h.ticker_symbol))
+).map((symbol) => (
+  <option key={symbol} value={symbol}>
+    {symbol}
+  </option>
+))}
+
+</optgroup>
+
+
           </select>
 
           <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
@@ -264,33 +297,38 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
             </button>
           </div>
         </div>
-
         <div>
-          <h4>Current Holdings:</h4>
-          <ul style={{ listStyle: "none", paddingLeft: 0, fontSize: "14px" }}>
-            {mockHoldings.map((h) => (
-              <li
-                key={h.symbol}
-                style={{
-                  marginBottom: "8px",
-                  padding: "6px 8px",
-                  backgroundColor: theme === "light" ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.2)", /* Transparent background with slight white tint */
-                  borderRadius: "6px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  backdropFilter: "blur(8px)", /* Glassmorphism blur effect */
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", /* Slight shadow for depth */
-                  color: "#fff", /* White text for contrast */
-                }}
-              >
-                <span>
-                  <strong>{h.symbol}</strong> ({h.quantity} shares)
-                </span>
-                <span style={{ color: "#fff" }}>${h.avgPrice}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+  <h4>Current Holdings:</h4>
+  <ul style={{ listStyle: "none", paddingLeft: 0, fontSize: "14px" }}>
+    {holdings.map((h) => (
+      <li
+        key={h.holding_id}
+        style={{
+          marginBottom: "8px",
+          padding: "6px 8px",
+          backgroundColor:
+            theme === "light"
+              ? "rgba(255, 255, 255, 0.1)"
+              : "rgba(255, 255, 255, 0.2)",
+          borderRadius: "6px",
+          display: "flex",
+          justifyContent: "space-between",
+          backdropFilter: "blur(8px)",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+          color: "#fff",
+        }}
+      >
+        <span>
+          <strong>{h.ticker_symbol}</strong> ({h.quantity} @ ${h.average_price.toFixed(2)})
+        </span>
+        <span style={{ color: h.unrealized_pnl >= 0 ? "#0f0" : "#f00" }}>
+          ${h.market_value.toFixed(2)} ({h.unrealized_pnl >= 0 ? "+" : ""}${h.unrealized_pnl.toFixed(2)})
+        </span>
+      </li>
+    ))}
+  </ul>
+</div>
+
       </aside>
 
       <main className="main">

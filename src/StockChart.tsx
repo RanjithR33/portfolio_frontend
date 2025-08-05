@@ -13,23 +13,49 @@ const StockChart: React.FC<Props> = ({ symbol }) => {
     script.async = true;
     script.onload = () => {
       if ((window as any).TradingView) {
-        new (window as any).TradingView.widget({
-          container_id: `tv-chart-${symbol}`,
-          symbol: `NASDAQ:${symbol}`, // or NSE:RELIANCE
-          interval: "D",
-          timezone: "Etc/UTC",
-          theme: "light",
-          style: "1",
-          locale: "en",
-          toolbar_bg: "#f1f3f6",
-          enable_publishing: false,
-          hide_top_toolbar: false,
-          allow_symbol_change: true,
-          width: "100%",
-          height: "500",
-        });
+        const exchanges = [ "NYSE","NASDAQ", "AMEX"];
+        let exchangeIndex = 0;
+    
+        const tryNextExchange = () => {
+          const exchange = exchanges[exchangeIndex];
+          const widget = new (window as any).TradingView.widget({
+            container_id: `tv-chart-${symbol}`,
+            symbol: `${symbol}`,
+            interval: "D",
+            timezone: "Etc/UTC",
+            theme: "light",
+            style: "1",
+            locale: "en",
+            toolbar_bg: "#f1f3f6",
+            enable_publishing: false,
+            hide_top_toolbar: false,
+            allow_symbol_change: true,
+            width: "100%",
+            height: "500",
+            autosize: true,
+            // Fallback detection using `onReady`
+            overrides: {},
+            studies_overrides: {},
+            // This will trigger when chart loads or fails
+            // If chart failed (likely invalid symbol), try next
+            container: document.getElementById(`tv-chart-${symbol}`),
+            onChartReady: function () {
+              const iframe = document.querySelector(`#tv-chart-${symbol} iframe`);
+              if (!iframe) {
+                exchangeIndex++;
+                if (exchangeIndex < exchanges.length) {
+                  tryNextExchange();
+                }
+              }
+            }
+          });
+        };
+    
+        tryNextExchange();
       }
     };
+    containerRef.current?.appendChild(script);
+    
     containerRef.current?.appendChild(script);
   }, [symbol]);
 
