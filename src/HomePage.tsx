@@ -20,6 +20,32 @@ type Watchlists = {
     items: Asset[];
   };
 };
+
+type Performance = {
+  current_holdings_worth: any;
+  overall_pl: any;
+  overall_pl_percent: any;
+  todays_change_amount: any;
+  total_initial_investment:any;
+};
+
+type ApiResponse = {
+  accounts: Array<{ account_type: string; balance: number; id: number; name: string }>;
+  detailed_holdings: Array<{
+    asset_name: string;
+    average_buy_price: number;
+    current_price: number;
+    market_value: number;
+    quantity: number;
+    ticker_symbol: string;
+    unrealized_pnl: number;
+  }>;
+  insights: any;
+  market_indices: any;
+  net_worth: number;
+  performance: Performance;
+};
+
 // Add this to the top of HomePage.tsx
 type Holding = {
   holding_id: number;
@@ -45,21 +71,54 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const [newListName, setNewListName] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
-  const mockHoldings = [
-    { symbol: "AAPL", quantity: 50, avgPrice: 180 },
-    { symbol: "TSLA", quantity: 20, avgPrice: 750 },
-    { symbol: "AMZN", quantity: 10, avgPrice: 3100 },
-    { symbol: "GOOG", quantity: 15, avgPrice: 2700 },
-    { symbol: "MSFT", quantity: 25, avgPrice: 295 },
-  ];
-
-  const latestPrice = chartData[chartData.length - 1]?.close || 0;
-  const invested = 10000;
-  const shares = 100;
-  const currentValue = latestPrice * shares;
-  const profitLoss = currentValue - invested;
-  const rateOfReturn = (profitLoss / invested) * 100;
+  // const latestPrice = chartData[chartData.length - 1]?.close || 0;
+  // const invested = 10000;
+  // const shares = 100;
+  // const currentValue = latestPrice * shares;
+  // const profitLoss = currentValue - invested;
+  // const rateOfReturn = (profitLoss / invested) * 100;
   const [holdings, setHoldings] = useState<Holding[]>([]);
+  
+
+  const [portfolioworth ,Setworth] = useState<number>(1);
+
+  const [portfolioPL ,SetPL] = useState<number>(1);
+  
+  const [portfolioPLpercent ,SetPLpercent] = useState<number>(1);
+  
+  const [portfolioInvestment ,SetInvestment] = useState<number>(1);
+  // const [performanceData, setPerformanceData] = useState<Performance | null>(null);
+
+
+
+  // Fetch API data when the component mounts
+  useEffect(() => {
+    const fetchPortfolioData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/summary`);
+        const data: ApiResponse = await response.json();
+
+        // Extract only the relevant performance data from the API response
+        console.log("API Response:", data.performance);
+        Setworth(data.performance.current_holdings_worth);
+        SetPL(data.performance.overall_pl);
+        SetPLpercent(data.performance.overall_pl_percent);
+        SetInvestment(data.performance.total_initial_investment);
+      } catch (err) {
+        console.error("Error fetching portfolio data:", err);
+      }
+    };
+
+    fetchPortfolioData();
+  }, [portfolioId]);
+  
+  // Extract performance data
+  // const { current_holdings_worth, overall_pl, total_initial_investment } = performanceData;
+
+  // Calculate Rate of Return
+
+
+
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/holdings-value`)
@@ -94,6 +153,25 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
         console.error("Error fetching watchlists:", err);
       });
   }, [portfolioId]);
+  // useEffect(() => {
+  //   fetch(`http://127.0.0.1:5000/api/v1//portfolio/{portfolio_id}/summary`)
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       const watchlistMap: Watchlists = {};
+  //       data.forEach((watchlist: any) => {
+  //         watchlistMap[watchlist.name] = {
+  //           id: watchlist.id,
+  //           name: watchlist.name,
+  //           items: watchlist.items || [],
+  //         };
+  //       });
+  //       setWatchlists(watchlistMap);
+  //       if (data.length > 0) setCurrentListName(data[0].name);
+  //     })
+  //     .catch((err) => {
+  //       console.error("Error fetching watchlists:", err);
+  //     });
+  // }, [portfolioId]);
 
   useEffect(() => {
     if (!selectedSymbol) return;
@@ -217,6 +295,7 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   };
 
   return (
+    
     <div className={`app ${theme}`}>
       <aside className="sidebar">
         <div style={{ marginBottom: "20px" }}>
@@ -297,7 +376,36 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
             </button>
           </div>
         </div>
-        <div>
+       <div className="summary-boxes">
+    <div className="box">
+      <h4>Current</h4>
+      <p>
+        ${portfolioworth}      </p>
+    </div>
+
+    <div className="box">
+      <h4>Invested</h4>
+      <p>
+        ${portfolioInvestment}
+      </p>
+    </div>
+
+    <div className="box">
+      <h4>P/L</h4>
+      <p style={{ color: portfolioPL >= 0 ? "green" : "red" }}>
+        ${portfolioPL.toFixed(2)}
+      </p>
+    </div>
+
+    <div className="box">
+      <h4>Rate of Return</h4>
+      <p style={{ color: portfolioPLpercent >= 0 ? "green" : "red" }}>
+        {portfolioPLpercent.toFixed(2)}%
+      </p>
+    </div>
+  </div>
+ 
+        {/* <div>
   <h4>Current Holdings:</h4>
   <ul style={{ listStyle: "none", paddingLeft: 0, fontSize: "14px" }}>
     {holdings.map((h) => (
@@ -327,36 +435,14 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
       </li>
     ))}
   </ul>
-</div>
+</div> */}
 
       </aside>
 
       <main className="main">
         {chartData.length > 0 && (
           <>
-            <div className="summary-boxes">
-              <div className="box">
-                <h4>Current</h4>
-                <p>${latestPrice.toFixed(2)}</p>
-              </div>
-              <div className="box">
-                <h4>Invested</h4>
-                <p>${invested.toLocaleString()}</p>
-              </div>
-              <div className="box">
-                <h4>P/L</h4>
-                <p style={{ color: profitLoss >= 0 ? "green" : "red" }}>
-                  ${profitLoss.toFixed(2)}
-                </p>
-              </div>
-              <div className="box">
-                <h4>Rate of Return</h4>
-                <p style={{ color: rateOfReturn >= 0 ? "green" : "red" }}>
-                  {rateOfReturn.toFixed(2)}%
-                </p>
-              </div>
-            </div>
-
+            
             <div className="chart-container">
               <StockChart symbol={selectedSymbol} />
               <div className="stock-details-container">

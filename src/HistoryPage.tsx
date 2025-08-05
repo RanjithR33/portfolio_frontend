@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,6 +10,7 @@ import {
   Title,
 } from "chart.js";
 
+// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -19,118 +20,104 @@ ChartJS.register(
   Title
 );
 
-// --- Portfolio Data ---
-const portfolioData = [
-  {
-    ticker_symbol: "MSFT",
-    asset_name: "Microsoft Corp",
-    average_price: 457.36,
-    market_value: 8385.76,
-    unrealized_pnl: 1067.95,
-  },
-  {
-    ticker_symbol: "DIS",
-    asset_name: "Disney",
-    average_price: 366.93,
-    market_value: 2681.57,
-    unrealized_pnl: -5758.02,
-  },
-  {
-    ticker_symbol: "XOM",
-    asset_name: "Exxon Mobil",
-    average_price: 458.38,
-    market_value: 5482,
-    unrealized_pnl: -17437.15,
-  },
-  {
-    ticker_symbol: "MA",
-    asset_name: "Mastercard",
-    average_price: 329.86,
-    market_value: 10637.91,
-    unrealized_pnl: 4370.53,
-  },
-  {
-    ticker_symbol: "ADBE",
-    asset_name: "Adobe",
-    average_price: 201.22,
-    market_value: 15651,
-    unrealized_pnl: 6596.09,
-  },
-];
-
-// --- Bar Chart Data ---
-const labels = portfolioData.map((item) => item.ticker_symbol);
-const values = portfolioData.map((item) => item.unrealized_pnl);
-
-const data = {
-  labels,
-  datasets: [
-    {
-      label: "Unrealized P&L (₹)",
-      data: values,
-      backgroundColor: values.map((v) =>
-        v >= 0 ? "rgba(75, 192, 192, 0.6)" : "rgba(255, 99, 132, 0.6)"
-      ),
-      borderColor: values.map((v) =>
-        v >= 0 ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)"
-      ),
-      borderWidth: 1,
-    },
-  ],
+// Define Holding type
+type Holding = {
+  holding_id: number;
+  account_name: string;
+  ticker_symbol: string;
+  asset_name: string;
+  quantity: number;
+  average_buy_price: number;
+  cost_basis: number;
+  market_value: number;
+  unrealized_pnl: number;
+  last_price: number | null;
 };
 
-const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "bottom" as const,
-      labels: {
+const GraphPage: React.FC = () => {
+  const [portfolioData, setPortfolioData] = useState<Holding[]>([]);
+  const portfolioId = "1"; // You can dynamically set the portfolioId here
+
+  // Fetch holdings data when portfolioId changes
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/holdings`)
+      .then((res) => res.json())
+      .then((data) => setPortfolioData(data))
+      .catch((err) => console.error("Error fetching detailed holdings:", err));
+  }, [portfolioId]);
+
+  // --- Bar Chart Data ---
+  const labels = portfolioData.map((item) => item.ticker_symbol);
+  const values = portfolioData.map((item) => item.unrealized_pnl);
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "Unrealized P&L (₹)",
+        data: values,
+        backgroundColor: values.map((v) =>
+          v >= 0 ? "rgba(75, 192, 192, 0.6)" : "rgba(255, 99, 132, 0.6)"
+        ),
+        borderColor: values.map((v) =>
+          v >= 0 ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)"
+        ),
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: {
+          font: {
+            size: 14,
+            weight: "bold" as const,
+          },
+        },
+      },
+      title: {
+        display: true,
+        text: "Unrealized P&L by Stock",
         font: {
-          size: 14,
+          size: 16,
           weight: "bold" as const,
         },
       },
-    },
-    title: {
-      display: true,
-      text: "Unrealized P&L by Stock",
-      font: {
-        size: 16,
-        weight: "bold" as const,
-      },
-    },
-    tooltip: {
-      callbacks: {
-        label: (context: any) => `₹ ${context.formattedValue}`,
-      },
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: false,
-      title: {
-        display: true,
-        text: "P&L (₹)",
-        font: {
-          size: 14,
+      tooltip: {
+        callbacks: {
+          label: (context: any) => `₹ ${context.formattedValue}`,
         },
       },
     },
-    x: {
-      title: {
-        display: true,
-        text: "Ticker",
-        font: {
-          size: 14,
+    scales: {
+      y: {
+        beginAtZero: false,
+        title: {
+          display: true,
+          text: "P&L (₹)",
+          font: {
+            size: 14,
+          },
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Ticker",
+          font: {
+            size: 14,
+          },
         },
       },
     },
-  },
-};
+  };
 
-// --- Main Component ---
-const GraphPage: React.FC = () => {
+  // --- Render the chart and table ---
   return (
     <div
       style={{
@@ -171,10 +158,10 @@ const GraphPage: React.FC = () => {
           </thead>
           <tbody>
             {portfolioData.map((item) => (
-              <tr key={item.ticker_symbol}>
+              <tr key={item.holding_id}>
                 <td style={tdStyle}>{item.ticker_symbol}</td>
                 <td style={tdStyle}>{item.asset_name}</td>
-                <td style={tdStyle}>₹ {item.average_price.toFixed(2)}</td>
+                <td style={tdStyle}>₹ {item.average_buy_price.toFixed(2)}</td>
                 <td style={tdStyle}>₹ {item.market_value.toFixed(2)}</td>
                 <td
                   style={{
