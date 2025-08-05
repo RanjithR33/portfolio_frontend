@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Pie, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -21,123 +21,83 @@ ChartJS.register(
   Legend
 );
 
-const data = {
-  accounts: [
-    {
-      account_type: "CASH",
-      balance: 6791.87,
-      id: 1,
-      name: "Primary Cash Account",
-    },
-    {
-      account_type: "INVESTMENT",
-      balance: 51499.08,
-      id: 2,
-      name: "Main Brokerage Account",
-    },
-    {
-      account_type: "RETIREMENT",
-      balance: 0,
-      id: 3,
-      name: "Roth IRA",
-    },
-  ],
-  net_worth: 58290.95,
-  performance: {
-    current_holdings_worth: 51499.08,
-    overall_pl: -42851.26,
-    overall_pl_percent: -45.42,
-    todays_change_amount: -1257.75,
-    total_initial_investment: 94350.34,
-  },
-  insights: {
-    top_gainers: [
-      { name: "Johnson & Johnson", change_amount: 103.6 },
-      { name: "PepsiCo, Inc.", change_amount: 31.28 },
-      { name: "CVS Health Corporation", change_amount: 14.06 },
-      { name: "AT&T Inc.", change_amount: 6.46 },
-      { name: "Verizon Communications Inc.", change_amount: 5.76 },
-    ],
-    top_losers: [
-      { name: "UnitedHealth Group", change_amount: -778.14 },
-      { name: "Amazon.com, Inc.", change_amount: -271.04 },
-      { name: "JPMorgan Chase & Co.", change_amount: -206.1 },
-      { name: "Microsoft Corp", change_amount: -103.29 },
-      { name: "Alphabet Inc.", change_amount: -38.78 },
-    ],
-  },
-  market_indices: [
-    { name: "S&P 500", change_percent: 147.37 },
-    { name: "Dow Jones", change_percent: 134.22 },
-    { name: "Nasdaq", change_percent: 195.37 },
-    { name: "Russell 2000", change_percent: 210.09 },
-  ],
-};
-
-const netWorthPie = {
-  labels: data.accounts.filter((a) => a.balance > 0).map((a) => a.name),
-  datasets: [
-    {
-      label: "Account Balance",
-      data: data.accounts.filter((a) => a.balance > 0).map((a) => a.balance),
-      backgroundColor: ["#ff9800", "#9c27b0", "#03a9f4"],
-      borderWidth: 1,
-      borderColor: "#fff",
-    },
-  ],
-};
-
-const topGainersData = {
-  labels: data.insights.top_gainers.map((g) => g.name),
-  datasets: [
-    {
-      label: "Gains (₹)",
-      data: data.insights.top_gainers.map((g) => g.change_amount),
-      backgroundColor: "#4caf50",
-    },
-  ],
-};
-
-const topLosersData = {
-  labels: data.insights.top_losers.map((l) => l.name),
-  datasets: [
-    {
-      label: "Losses (₹)",
-      data: data.insights.top_losers.map((l) => Math.abs(l.change_amount)),
-      backgroundColor: "#f44336",
-    },
-  ],
-};
-
-const performanceData = {
-  labels: [
-    "Total Initial Investment",
-    "Current Holdings Worth",
-    "Overall P&L",
-    "Today's Change",
-  ],
-  datasets: [
-    {
-      label: "Amount (₹)",
-      data: [
-        data.performance.total_initial_investment,
-        data.performance.current_holdings_worth,
-        data.performance.overall_pl,
-        data.performance.todays_change_amount,
-      ],
-      backgroundColor: ["#1976d2", "#4caf50", "#f44336", "#ff9800"],
-    },
-  ],
-};
-
 const AnalysisPage = () => {
+  const [data, setData] = useState<any>(null);
+  const portfolioId = 1; // Replace with dynamic ID if needed
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/summary`)
+      .then((res) => res.json())
+      .then((data) => setData(data))
+      .catch((err) => console.error("Error fetching analysis data:", err));
+  }, [portfolioId]);
+
+  if (!data) return <p>Loading analysis...</p>;
+
+  // Chart configurations
+  const netWorthPie = {
+    labels: data.accounts.filter((a: any) => a.balance > 0).map((a: any) => a.name),
+    datasets: [
+      {
+        label: "Account Balance",
+        data: data.accounts.filter((a: any) => a.balance > 0).map((a: any) => a.balance),
+        backgroundColor: ["#ff9800", "#9c27b0", "#03a9f4"],
+        borderWidth: 1,
+        borderColor: "#fff",
+      },
+    ],
+  };
+
+  const topGainersData = {
+    labels: data.insights.top_gainers.map((g: any) => g.name),
+    datasets: [
+      {
+        label: "Gains (₹)",
+        data: data.insights.top_gainers.map((g: any) => g.change_amount),
+        backgroundColor: "#4caf50",
+      },
+    ],
+  };
+
+  const topLosersData = {
+    labels: data.insights.top_losers.map((l: any) => l.name),
+    datasets: [
+      {
+        label: "Losses (₹)",
+        data: data.insights.top_losers.map((l: any) => Math.abs(l.change_amount)),
+        backgroundColor: "#f44336",
+      },
+    ],
+  };
+
+  const performanceData = {
+    labels: [
+      "Total Initial Investment",
+      "Current Holdings Worth",
+      "Overall P&L",
+      "Today's Change",
+    ],
+    datasets: [
+      {
+        label: "Amount (₹)",
+        data: [
+          data.performance.total_initial_investment,
+          data.performance.current_holdings_worth,
+          data.performance.overall_pl,
+          data.performance.todays_change_amount,
+        ],
+        backgroundColor: ["#1976d2", "#4caf50", "#f44336", "#ff9800"],
+      },
+    ],
+  };
+
   return (
     <div style={styles.container}>
       <h2 style={styles.header}>📊 Portfolio Analysis</h2>
 
       {/* Market Indices */}
       <div style={styles.indicesContainer}>
-        {data.market_indices.map((index) => (
+        {data.market_indices.map((index: any) => (
           <div key={index.name} style={styles.indexBox}>
             <p style={styles.indexName}>{index.name}</p>
             <p
@@ -146,13 +106,13 @@ const AnalysisPage = () => {
                 color: index.change_percent >= 0 ? "#4caf50" : "#f44336",
               }}
             >
-              {index.change_percent.toFixed(2)}%
+              {index.change_percent.toFixed(2)/100}%
             </p>
           </div>
         ))}
       </div>
 
-      {/* Charts Grid */}
+      {/* Charts */}
       <div style={styles.chartsGrid}>
         <div style={styles.chartCard}>
           <h4 style={styles.chartTitle}>💰 Net Worth Allocation</h4>
@@ -232,17 +192,17 @@ const styles = {
     display: "flex",
     flexDirection: "column" as const,
     alignItems: "center",
-    gap: "10px", // 📏 Reduce spacing between elements
+    gap: "10px",
   },
   chartTitle: {
-    margin: "6px 0 0 0", // 📏 Tighter spacing
+    margin: "6px 0 0 0",
     fontSize: "16px",
     fontWeight: 600,
     color: "black",
     textAlign: "center" as const,
   },
   smallPieWrapper: {
-    width: "280px", // 📏 Slightly smaller
+    width: "280px",
     height: "280px",
   },
 };
