@@ -177,7 +177,7 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
     if (!selectedSymbol) return;
 
     fetch(
-      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
+      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -376,34 +376,7 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
             </button>
           </div>
         </div>
-       <div className="summary-boxes">
-    <div className="box">
-      <h4>Current</h4>
-      <p>
-        ${portfolioworth}      </p>
-    </div>
-
-    <div className="box">
-      <h4>Invested</h4>
-      <p>
-        ${portfolioInvestment}
-      </p>
-    </div>
-
-    <div className="box">
-      <h4>P/L</h4>
-      <p style={{ color: portfolioPL >= 0 ? "green" : "red" }}>
-        ${portfolioPL.toFixed(2)}
-      </p>
-    </div>
-
-    <div className="box">
-      <h4>Rate of Return</h4>
-      <p style={{ color: portfolioPLpercent >= 0 ? "green" : "red" }}>
-        {portfolioPLpercent.toFixed(2)}%
-      </p>
-    </div>
-  </div>
+       
  
         {/* <div>
   <h4>Current Holdings:</h4>
@@ -440,6 +413,34 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
       </aside>
 
       <main className="main">
+      <div className="summary-boxes">
+    <div className="box">
+      <h4>Current</h4>
+      <p>
+        ${portfolioworth}      </p>
+    </div>
+
+    <div className="box">
+      <h4>Invested</h4>
+      <p>
+        ${portfolioInvestment}
+      </p>
+    </div>
+
+    <div className="box">
+      <h4>P/L</h4>
+      <p style={{ color: portfolioPL >= 0 ? "green" : "red" }}>
+        ${portfolioPL.toFixed(2)}
+      </p>
+    </div>
+
+    <div className="box">
+      <h4>Rate of Return</h4>
+      <p style={{ color: portfolioPLpercent >= 0 ? "green" : "red" }}>
+        {portfolioPLpercent.toFixed(2)}%
+      </p>
+    </div>
+  </div>
         {chartData.length > 0 && (
           <>
             
