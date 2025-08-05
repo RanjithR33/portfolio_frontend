@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import HomePage from "./HomePage";
-import HistoryPage from "./HistoryPage";
+import GraphPage from "./HistoryPage";
 import TransactionPage from "./TransactionPage"; // <- add this
 
 const App = () => {
@@ -44,24 +44,33 @@ const App = () => {
           <Link to="/" style={{ color: "white", textDecoration: "none" }}>
             Home
           </Link>
-          <Link to="/history" style={{ color: "white", textDecoration: "none" }}>
-            History
+          <Link
+            to="/history"
+            style={{ color: "white", textDecoration: "none" }}
+          >
+            Holdings
           </Link>
-          <Link to="/transactions" style={{ color: "white", textDecoration: "none" }}>
+          <Link
+            to="/transactions"
+            style={{ color: "white", textDecoration: "none" }}
+          >
             Transactions
           </Link>
         </nav>
 
         {/* Theme toggle button */}
         <button style={themeToggleStyle} onClick={toggleTheme}>
-          {theme === "light" ? "🌙" : "🌞"} {/* Emoji for light and dark themes */}
+          {theme === "light" ? "🌙" : "🌞"}{" "}
+          {/* Emoji for light and dark themes */}
         </button>
       </header>
 
-      <div className={theme}> {/* Dynamically apply theme class here */}
+      <div className={theme}>
+        {" "}
+        {/* Dynamically apply theme class here */}
         <Routes>
           <Route path="/" element={<HomePage theme={theme} />} />
-          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/history" element={<GraphPage />} />
           <Route path="/transactions" element={<TransactionPage />} />
         </Routes>
       </div>
