@@ -2,18 +2,15 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import HomePage from "./HomePage";
 import GraphPage from "./HistoryPage";
-import TransactionPage from "./TransactionPage"; // <- add this
+import TransactionPage from "./TransactionPage";
+import AnalysisPage from "./Analysis"; // ✅ NEW IMPORT
 
 const App = () => {
-  // Track theme state: "light" or "dark"
   const [theme, setTheme] = useState("light");
 
-  // Toggle theme function
-  const toggleTheme = () => {
+  const toggleTheme = () =>
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
-  };
 
-  // Define styles for light and dark themes
   const headerStyle = {
     backgroundColor: theme === "light" ? "#343a40" : "#212529",
     padding: "10px",
@@ -56,22 +53,26 @@ const App = () => {
           >
             Transactions
           </Link>
+          <Link
+            to="/analysis"
+            style={{ color: "white", textDecoration: "none" }}
+          >
+            Analysis
+          </Link>
         </nav>
 
-        {/* Theme toggle button */}
         <button style={themeToggleStyle} onClick={toggleTheme}>
-          {theme === "light" ? "🌙" : "🌞"}{" "}
-          {/* Emoji for light and dark themes */}
+          {theme === "light" ? "🌙" : "🌞"}
         </button>
       </header>
 
       <div className={theme}>
-        {" "}
-        {/* Dynamically apply theme class here */}
         <Routes>
           <Route path="/" element={<HomePage theme={theme} />} />
           <Route path="/history" element={<GraphPage />} />
           <Route path="/transactions" element={<TransactionPage />} />
+          <Route path="/analysis" element={<AnalysisPage />} />{" "}
+          {/* ✅ NEW ROUTE */}
         </Routes>
       </div>
     </Router>
