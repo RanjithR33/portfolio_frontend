@@ -115,7 +115,7 @@ const AnalysisPage = () => {
 
       {/* Performance Overview - Centered */}
       <div style={styles.centeredChartContainer}>
-        <div style={styles.chartCard}>
+        <div style={styles.centeredChartCard}>
           <h4 style={styles.chartTitle}>📈 Performance Overview</h4>
           <Bar data={performanceData} />
         </div>
@@ -130,6 +130,7 @@ const styles = {
     margin: "0 auto",
     padding: "20px",
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    boxSizing: "border-box" as const, // Ensure padding doesn't affect layout
   },
   header: {
     textAlign: "center" as const,
@@ -151,6 +152,7 @@ const styles = {
     width: "140px",
     textAlign: "center" as const,
     boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    overflow: "hidden", // Prevent content from spilling out
   },
   indexName: {
     fontSize: "14px",
@@ -166,17 +168,20 @@ const styles = {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "20px",
+    marginBottom: "30px",
   },
   chartCard: {
     background: "#fff",
     padding: "10px",
     borderRadius: "10px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-    height: "400px",
     display: "flex",
     flexDirection: "column" as const,
     alignItems: "center",
     gap: "10px",
+    height: "400px",
+    overflow: "hidden", // Prevent chart from overflowing
+    flexGrow: 1, // Allow the card to grow within the layout
   },
   chartTitle: {
     margin: "6px 0 0 0",
@@ -186,24 +191,29 @@ const styles = {
     textAlign: "center" as const,
   },
   centeredChartContainer: {
-
+    display: "flex",
     justifyContent: "center",
-    marginTop: "30px", // Add some space above the centered chart
+    marginTop: "30px", // Add space above the centered chart
     marginBottom: "20px",
+    width: "100%", // Ensure it takes full width
+    overflow: "hidden", // Prevent overflow of content
+    flexWrap: "wrap" as const, // Allow charts to wrap inside the container
+    justifyItems: "center", // Center content horizontally
   },
-  // Adjust the chart card inside the centered container to make it visually consistent with others
   centeredChartCard: {
     background: "#fff",
     padding: "10px",
     borderRadius: "10px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-    height: "400px",
-    width: "100%", // Ensure it spans the available width for a balanced layout
-    maxWidth: "600px", // Limit max width for large screens
+    height: "500px", // Ensure the height is fixed
+    width: "100%", // Ensure it spans the available width
+    maxWidth: "800px", // Limit max width for large screens
     display: "flex",
     flexDirection: "column" as const,
     alignItems: "center",
     gap: "10px",
+    overflow: "hidden", // Prevent any overflow issues
+    flexGrow: 1, // Allow the card to grow if needed
   },
 };
 
