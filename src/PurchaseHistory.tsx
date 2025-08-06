@@ -20,7 +20,7 @@ const PurchaseHistoryPage: React.FC = () => {
     // Fetch transaction data
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/v1/transactions/account/2`);
+        const response = await fetch(`http://localhost:5000/api/v1/transactions/account/1`);
         if (!response.ok) {
           throw new Error("Failed to fetch transactions.");
         }

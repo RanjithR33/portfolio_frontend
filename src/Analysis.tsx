@@ -34,19 +34,19 @@ const AnalysisPage = () => {
 
   if (!data) return <p>Loading analysis...</p>;
 
-  // Chart configurations
-  const netWorthPie = {
-    labels: data.accounts.filter((a: any) => a.balance > 0).map((a: any) => a.name),
-    datasets: [
-      {
-        label: "Account Balance",
-        data: data.accounts.filter((a: any) => a.balance > 0).map((a: any) => a.balance),
-        backgroundColor: ["#ff9800", "#9c27b0", "#03a9f4"],
-        borderWidth: 1,
-        borderColor: "#fff",
-      },
-    ],
-  };
+ // Chart configurations based on your data structure
+// const netWorthPie = {
+//   labels: [data.account.name],  // Account name from the "account" object
+//   datasets: [
+//     {
+//       label: "Account Balance",
+//       data: [data.account.cash_balance], // Account balance from the "account" object
+//       backgroundColor: ["#ff9800", "#9c27b0", "#03a9f4"],  // Customize colors as needed
+//       borderWidth: 1,
+//       borderColor: "#fff",
+//     },
+//   ],
+// };
 
   const topGainersData = {
     labels: data.insights.top_gainers.map((g: any) => g.name),
@@ -114,12 +114,12 @@ const AnalysisPage = () => {
 
       {/* Charts */}
       <div style={styles.chartsGrid}>
-        <div style={styles.chartCard}>
+        {/* <div style={styles.chartCard}>
           <h4 style={styles.chartTitle}>💰 Net Worth Allocation</h4>
           <div style={styles.smallPieWrapper}>
             <Pie data={netWorthPie} />
           </div>
-        </div>
+        </div> */}
 
         <div style={styles.chartCard}>
           <h4 style={styles.chartTitle}>🚀 Top Gainers</h4>

@@ -26,8 +26,8 @@ function StockDetails({ symbol }: StockDetailsProps) {
     fetch(
       // `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
       //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
-      // `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
-       `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
+      `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=PLBb4Vn8eW8bLQ3MvtZeutZQo3Tbg7un`
+      //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
     )
       .then((res) => res.json())
       .then((data) => {

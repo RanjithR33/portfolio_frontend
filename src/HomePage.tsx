@@ -195,7 +195,8 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
 
     fetch(
         //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
-      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
+        `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=PLBb4Vn8eW8bLQ3MvtZeutZQo3Tbg7un`
+      // `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
     )
       .then((res) => res.json())
       .then((data) => {
