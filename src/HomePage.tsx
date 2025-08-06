@@ -66,7 +66,7 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const [watchlists, setWatchlists] = useState<Watchlists>({});
   const [currentListName, setCurrentListName] = useState<string>("Default");
   const [selectedSymbol, setSelectedSymbol] = useState<string>("AAPL");
-
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [chartData, setChartData] = useState<any[]>([]);
   const [portfolioId] = useState<number>(1); // Example portfolioId, set this dynamically
 
@@ -186,7 +186,7 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
     if (!selectedSymbol) return;
 
     fetch(
-      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
+      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -203,11 +203,13 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const addToWatchlist = (symbol: string) => {
     const currentList = watchlists[currentListName];
     console.log(JSON.stringify({ ticker: symbol }));
+  
     // Prevent duplicates
     if (Array.isArray(currentList?.items) && currentList.items.some(item => item.ticker_symbol === symbol)) {
+      setErrorMessage("This stock is already in your watchlist.");
       return;
     }
-
+  
     fetch(`http://localhost:5000/api/v1/watchlists/${currentList.id}/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -232,10 +234,14 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
             },
           };
         });
+        setErrorMessage(null); // Reset error message if the operation is successful
       })
-      .catch((err) => console.error("Error adding item:", err));
+      .catch((err) => {
+        console.error("Error adding item:", err);
+        setErrorMessage("Failed to add item to the watchlist. Please try again.");
+      });
   };
-
+  
   const removeFromWatchlist = (symbol: string) => {
     const currentList = watchlists[currentListName];
     if (!currentList) return;
@@ -314,10 +320,60 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
           setCurrentListName={setCurrentListName}
           onRemove={handleRemoveWatchlist}
         /></div>
+        
+{/* New Watchlist Button and Input */}
+<div style={{ marginBottom: "20px" }}>
+  <input
+    type="text"
+    placeholder="Enter new watchlist name"
+    value={newListName}
+    onChange={(e) => setNewListName(e.target.value)}
+    style={{
+      width: "95%",
+      padding: "8px",
+      marginBottom: "8px",
+      borderRadius: "6px",
+      border: "1px solid #ccc",
+    }}
+  />
+  <button
+    onClick={handleCreateWatchlist}
+    style={{
+      width: "100%",
+      padding: "8px",
+      backgroundColor: "#28a745", // Green button
+      color: "white",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+    }}
+  >
+    Create New Watchlist
+  </button>
+</div>
 
-        <div style={{ marginBottom: "20px" }}>
-          <SearchBar onAdd={addToWatchlist} />
-        </div>
+<div style={{ marginBottom: "20px" }}>
+  <SearchBar onAdd={addToWatchlist} />
+
+  {/* Show error message if there's one */}
+  {errorMessage && (
+    <div
+      style={{
+        color: "#fff", // White text
+        fontSize: "14px", // Normal font size
+        fontWeight: "500", // Medium font weight
+        backgroundColor: "#d32f2f", // Red background
+        padding: "12px 16px", // Sufficient padding for better spacing
+        borderRadius: "4px", // Slight rounded corners
+        marginTop: "8px", // Space between search bar and error message
+      }}
+    >
+      {errorMessage}
+    </div>
+  )}
+</div>
+
+
 
         <Watchlist
           items={watchlists[currentListName]?.items || []}

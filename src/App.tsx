@@ -52,7 +52,7 @@ const App = () => {
             Holdings
           </Link>
           <Link
-            to="/transactions"
+            to="/transactions/AAPL/buy"
             style={{ color: "white", textDecoration: "none" }}
           >
             Transactions
