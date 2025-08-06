@@ -106,7 +106,7 @@ const AnalysisPage = () => {
                 color: index.change_percent >= 0 ? "#4caf50" : "#f44336",
               }}
             >
-              {index.change_percent.toFixed(2)/100}%
+              {(index.change_percent/100).toFixed(2)}%
             </p>
           </div>
         ))}

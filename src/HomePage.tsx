@@ -6,7 +6,9 @@ import StockDetails from "./StockDetails";
 import NewsSentiment from "./NewsSentiment";
 import "./App.css";
 import CustomDropdown from "./CustomDropdown";
+import { useNavigate } from 'react-router-dom';
 
+// import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 // Define types for API responses
 type Asset = {
   asset_id: number;
@@ -90,7 +92,14 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   // const [performanceData, setPerformanceData] = useState<Performance | null>(null);
 
 
+  const navigate = useNavigate();
+  const handleAddClick = () => {
+    navigate(`/transactions/${selectedSymbol}/buy`);  // Use selectedSymbol here
+  };
 
+  const handleRemoveClick = () => {
+    navigate(`/transactions/${selectedSymbol}/sell`);  // Use selectedSymbol here
+  };
   // Fetch API data when the component mounts
   useEffect(() => {
     const fetchPortfolioData = async () => {
@@ -345,36 +354,36 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
           </select>
 
           <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
-            <button
-              onClick={() => console.log("Add to Portfolio clicked")}
-              style={{
-                flex: 1,
-                padding: "8px",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
-            >
-              Add
-            </button>
+      <button
+        onClick={() => handleAddClick()}  // Replace "AAPL" with your symbol
+        style={{
+          flex: 1,
+          padding: "8px",
+          backgroundColor: "#007bff",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+        }}
+      >
+        BUY
+      </button>
 
-            <button
-              onClick={() => console.log("Remove from Portfolio clicked")}
-              style={{
-                flex: 1,
-                padding: "8px",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
-            >
-              Remove
-            </button>
-          </div>
+      <button
+        onClick={() => handleRemoveClick()}  // Replace "AAPL" with your symbol
+        style={{
+          flex: 1,
+          padding: "8px",
+          backgroundColor: "#dc3545",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+        }}
+      >
+        SELL
+      </button>
+    </div>
         </div>
        
  

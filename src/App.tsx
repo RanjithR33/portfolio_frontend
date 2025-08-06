@@ -7,7 +7,7 @@ import AnalysisPage from "./Analysis"; // ✅ NEW IMPORT
 
 const App = () => {
   const [theme, setTheme] = useState("light");
-
+  
   const toggleTheme = () =>
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
 
@@ -36,6 +36,10 @@ const App = () => {
 
   return (
     <Router>
+    
+  
+  
+    
       <header style={headerStyle}>
         <nav style={navStyle}>
           <Link to="/" style={{ color: "white", textDecoration: "none" }}>
@@ -70,9 +74,11 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage theme={theme} />} />
           <Route path="/history" element={<GraphPage />} />
-          <Route path="/transactions" element={<TransactionPage />} />
+          <Route path="/transactions/:symbol/:action" element={<TransactionPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />{" "}
-          {/* ✅ NEW ROUTE */}
+       
+       
+      
         </Routes>
       </div>
     </Router>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
-// StockDetails Component remains unchanged
+// StockDetails Component
 function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetched: (price: number) => void }) {
   const [quote, setQuote] = useState<any | null>(null);
 
@@ -36,16 +37,26 @@ function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetch
 }
 
 function TransactionPage() {
-  const [transactionType, setTransactionType] = useState<"buy" | "sell">("buy");
+  const { symbol, action } = useParams<{ symbol: string; action: string }>();
+
+  // State initialization based on URL params
+  const [transactionType, setTransactionType] = useState<"buy" | "sell">(action === "buy" ? "buy" : "sell");
   const [orderType, setOrderType] = useState<"MARKET" | "LIMIT" | "STOP_LOSS">("MARKET");
   const [quantity, setQuantity] = useState<number>(0);
   const [price, setPrice] = useState<number>(0);
-  const [selectedStock, setSelectedStock] = useState<string>("AAPL");
+  const [selectedStock, setSelectedStock] = useState<string>(symbol || "AAPL");
   const [transactionDate] = useState<string>(new Date().toISOString().split("T")[0]);
 
   // New state for feedback messages
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
+
+  useEffect(() => {
+    if (symbol) {
+      setSelectedStock(symbol);
+      setTransactionType(action === "buy" ? "buy" : "sell");
+    }
+  }, [symbol, action]);
 
   const handleTransaction = () => {
     const transactionData = {
@@ -53,7 +64,7 @@ function TransactionPage() {
       ticker: selectedStock,
       transaction_type: transactionType.toUpperCase(),
       order_type: orderType,
-      quantity: quantity
+      quantity: quantity,
     };
 
     fetch("http://localhost:5000/api/v1/orders/", {
