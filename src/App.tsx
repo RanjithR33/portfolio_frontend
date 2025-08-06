@@ -4,6 +4,7 @@ import HomePage from "./HomePage";
 import GraphPage from "./HistoryPage";
 import TransactionPage from "./TransactionPage";
 import AnalysisPage from "./Analysis"; // ✅ NEW IMPORT
+import PurchaseHistoryPage from "./PurchaseHistory"; // Import the new page
 
 const App = () => {
   const [theme, setTheme] = useState("light");
@@ -36,10 +37,6 @@ const App = () => {
 
   return (
     <Router>
-    
-  
-  
-    
       <header style={headerStyle}>
         <nav style={navStyle}>
           <Link to="/" style={{ color: "white", textDecoration: "none" }}>
@@ -63,6 +60,12 @@ const App = () => {
           >
             Analysis
           </Link>
+          <Link
+            to="/purchase-history"
+            style={{ color: "white", textDecoration: "none" }}
+          >
+            Purchase History
+          </Link>
         </nav>
 
         <button style={themeToggleStyle} onClick={toggleTheme}>
@@ -75,10 +78,8 @@ const App = () => {
           <Route path="/" element={<HomePage theme={theme} />} />
           <Route path="/history" element={<GraphPage />} />
           <Route path="/transactions/:symbol/:action" element={<TransactionPage />} />
-          <Route path="/analysis" element={<AnalysisPage />} />{" "}
-       
-       
-      
+          <Route path="/analysis" element={<AnalysisPage />} />
+          <Route path="/purchase-history" element={<PurchaseHistoryPage />} /> {/* New Route */}
         </Routes>
       </div>
     </Router>
