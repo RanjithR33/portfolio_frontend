@@ -1,60 +1,48 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+
+interface Transaction {
+  asset_ticker: string;
+  description: string;
+  id: number;
+  price_per_unit: number;
+  quantity: number;
+  total_amount: number;
+  transaction_date: string;
+  transaction_type: string;
+}
 
 const PurchaseHistoryPage: React.FC = () => {
-  // Hardcoded transactions data
-  const transactions = [
-    {
-      asset_ticker: "JNJ",
-      description: "Market buy of JNJ",
-      id: 10,
-      price_per_unit: 150.7583,
-      quantity: 8,
-      total_amount: -1206.07,
-      transaction_date: "2025-04-27",
-      transaction_type: "BUY",
-    },
-    {
-      asset_ticker: "XOM",
-      description: "Market buy of XOM",
-      id: 8,
-      price_per_unit: 378.1721,
-      quantity: 5,
-      total_amount: -1890.86,
-      transaction_date: "2025-02-24",
-      transaction_type: "BUY",
-    },
-    {
-      asset_ticker: "VZ",
-      description: "Market buy of VZ",
-      id: 4,
-      price_per_unit: 170.8494,
-      quantity: 15,
-      total_amount: -2562.74,
-      transaction_date: "2025-02-17",
-      transaction_type: "BUY",
-    },
-    {
-      asset_ticker: "ADBE",
-      description: "Market buy of ADBE",
-      id: 6,
-      price_per_unit: 203.2007,
-      quantity: 15,
-      total_amount: -3048.01,
-      transaction_date: "2024-11-07",
-      transaction_type: "BUY",
-    },
-    {
-      asset_ticker: "LOW",
-      description: "Market buy of LOW",
-      id: 5,
-      price_per_unit: 91.5803,
-      quantity: 22,
-      total_amount: -2014.77,
-      transaction_date: "2024-10-09",
-      transaction_type: "BUY",
-    },
-    // More transactions...
-  ];
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch transaction data
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/v1/transactions/account/2`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch transactions.");
+        }
+        const data = await response.json();
+        setTransactions(data);
+      } catch (error: any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []); // Empty dependency array to run only once when component mounts
+
+  if (loading) {
+    return <div>Loading transactions...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div style={containerStyle}>
@@ -77,7 +65,7 @@ const PurchaseHistoryPage: React.FC = () => {
             <tr key={transaction.id} style={transactionRowStyle}>
               <td>{transaction.asset_ticker}</td>
               <td>{transaction.description}</td>
-              <td>${transaction.price_per_unit.toFixed(2)}</td>
+              <td>${transaction.price_per_unit}</td>
               <td>{transaction.quantity}</td>
               <td
                 style={{
@@ -135,19 +123,7 @@ const transactionRowStyle: React.CSSProperties = {
   fontSize: "14px",
   padding: "12px",
   transition: "background-color 0.3s",
-  color:"black"
-};
-
-const tableRowHoverStyle: React.CSSProperties = {
-  backgroundColor: "#ecf0f1",
-};
-
-// You can add a hover effect to the rows if you want:
-const transactionRowStyleHover = {
-  ...transactionRowStyle,
-  "&:hover": {
-    backgroundColor: "#ecf0f1",
-  },
+  color: "black",
 };
 
 export default PurchaseHistoryPage;

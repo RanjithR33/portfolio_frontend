@@ -6,7 +6,7 @@ import StockDetails from "./StockDetails";
 import NewsSentiment from "./NewsSentiment";
 import "./App.css";
 import CustomDropdown from "./CustomDropdown";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from "react-router-dom";
 
 // import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 // Define types for API responses
@@ -93,6 +93,14 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
 
 
   const navigate = useNavigate();
+  const { symbol, action } = useParams();  // Capture symbol and action from the URL
+
+  useEffect(() => {
+    if (symbol) {
+      setSelectedSymbol(symbol); // Update selectedSymbol based on URL
+    }
+  }, [symbol]);  // Run when symbol changes in the URL
+
   const handleAddClick = () => {
     navigate(`/transactions/${selectedSymbol}/buy`);  // Use selectedSymbol here
   };
@@ -186,6 +194,7 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
     if (!selectedSymbol) return;
 
     fetch(
+        //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
       `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
     )
       .then((res) => res.json())
