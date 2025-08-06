@@ -186,7 +186,7 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
     if (!selectedSymbol) return;
 
     fetch(
-      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
+      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
     )
       .then((res) => res.json())
       .then((data) => {

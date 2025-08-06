@@ -7,19 +7,43 @@ function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetch
 
   useEffect(() => {
     fetch(
-      `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
+      `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
     )
       .then((res) => res.json())
       .then((data) => {
         if (data && data.length > 0) {
           setQuote(data[0]);
           onPriceFetched(data[0].price);
+        } else {
+          setQuote(null); // If no data, set quote to null
         }
+      })
+      .catch((error) => {
+        console.error("Error fetching stock data:", error);
+        setQuote(null); // If there's an error, also set quote to null
       });
   }, [symbol, onPriceFetched]);
 
-  if (!quote) return <div>Loading stock data...</div>;
-
+  if (!quote) {
+    return (
+      <div
+        style={{
+          padding: "10px",
+          backgroundColor: "#ff4d4f", // Bright red for error
+          color: "white",
+          borderRadius: "6px",
+          textAlign: "center",
+          fontWeight: "bold",
+          fontSize: "14px", // Smaller font size
+          marginBottom: "10px", // Smaller margin
+        }}
+      >
+        No stock data found for {symbol}.
+      </div>
+    );
+  }
+  
+  
   return (
     <div>
       <h4>
