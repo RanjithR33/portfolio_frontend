@@ -32,7 +32,12 @@ type Performance = {
 };
 
 type ApiResponse = {
-  accounts: Array<{ account_type: string; balance: number; id: number; name: string }>;
+  account: {
+    account_type: string;
+    cash_balance: number;
+    id: number;
+    name: string;
+  };
   detailed_holdings: Array<{
     asset_name: string;
     average_buy_price: number;
@@ -69,6 +74,9 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [chartData, setChartData] = useState<any[]>([]);
   const [portfolioId] = useState<number>(1); // Example portfolioId, set this dynamically
+  const [availableFunds, setAvailableFunds] = useState<number>(0);
+  const [fundsToAdd, setFundsToAdd] = useState<number>(0);
+const [message, setMessage] = useState<{ type: string, text: string } | null>(null);
 
   const [newListName, setNewListName] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
@@ -108,26 +116,62 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const handleRemoveClick = () => {
     navigate(`/transactions/${selectedSymbol}/sell`);  // Use selectedSymbol here
   };
-  // Fetch API data when the component mounts
-  useEffect(() => {
-    const fetchPortfolioData = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/summary`);
-        const data: ApiResponse = await response.json();
+  const handleAddFunds = async () => {
+    if (fundsToAdd <= 0) {
+      setMessage({ type: "error", text: "Please enter a valid amount." });
+      return;
+    }
 
-        // Extract only the relevant performance data from the API response
-        console.log("API Response:", data.performance);
-        Setworth(data.performance.current_holdings_worth);
-        SetPL(data.performance.overall_pl);
-        SetPLpercent(data.performance.overall_pl_percent);
-        SetInvestment(data.performance.total_initial_investment);
-      } catch (err) {
-        console.error("Error fetching portfolio data:", err);
+    try {
+      const response = await fetch(`http://localhost:5000/api/v1/accounts/1/funds`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "DEPOSIT",  // Action type
+          amount: fundsToAdd, // Amount to add
+        }),
+      });
+
+      if (response.ok) {
+        setMessage({ type: "success", text: `Successfully added $${fundsToAdd.toFixed(2)} to your portfolio.` });
+        setFundsToAdd(0); // Reset input field
+
+        // Refetch portfolio data to update the available funds
+        fetchPortfolioData();
+      } else {
+        setMessage({ type: "error", text: "Failed to add funds. Please try again." });
       }
-    };
+    } catch (error) {
+      console.error("Error adding funds:", error);
+      setMessage({ type: "error", text: "An error occurred. Please try again." });
+    }
+  };
 
+  // Function to fetch portfolio data
+  const fetchPortfolioData = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/summary`);
+      const data: ApiResponse = await response.json();
+
+      // Update state based on the API response
+      console.log("API Response:", data.account);
+      Setworth(data.performance.current_holdings_worth);
+      SetPL(data.performance.overall_pl);
+      SetPLpercent(data.performance.overall_pl_percent);
+      SetInvestment(data.performance.total_initial_investment);
+      setAvailableFunds(data.account.cash_balance); // Update available funds
+    } catch (err) {
+      console.error("Error fetching portfolio data:", err);
+    }
+  };
+
+  // Fetch portfolio data when the component mounts
+  useEffect(() => {
     fetchPortfolioData();
-  }, [portfolioId]);
+  }, []);  // Only fetch on mount
+
   
   // Extract performance data
   // const { current_holdings_worth, overall_pl, total_initial_investment } = performanceData;
@@ -194,9 +238,7 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
     if (!selectedSymbol) return;
 
     fetch(
-        //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
-        `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=PLBb4Vn8eW8bLQ3MvtZeutZQo3Tbg7un`
-      // `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
+      `https://financialmodelingprep.com/api/v3/historical-price-full/${selectedSymbol}?serietype=line&apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -484,22 +526,67 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
     ))}
   </ul>
 </div> */}
+{/* Add Funds Section */}
+<div style={{ marginBottom: "20px" }}>
+      <h4>Add Funds to Portfolio</h4>
+      <input
+        type="number"
+        placeholder="Enter amount to add"
+        value={fundsToAdd}
+        onChange={(e) => setFundsToAdd(Number(e.target.value))}
+        style={{
+          width: "95%",
+          padding: "8px",
+          marginBottom: "8px",
+          borderRadius: "6px",
+          border: "1px solid #ccc",
+        }}
+      />
+      <button
+        onClick={handleAddFunds}
+        style={{
+          width: "100%",
+          padding: "8px",
+          backgroundColor: "#28a745", // Green button
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+        }}
+      >
+        Add Funds
+      </button>
+
+      {/* Show error/success message if there's one */}
+      {message && (
+        <div
+          style={{
+            color: message.type === "error" ? "#fff" : "#000", // White for error, black for success
+            backgroundColor: message.type === "error" ? "#d32f2f" : "#28a745", // Red for error, Green for success
+            padding: "12px 16px",
+            fontSize: "14px",
+            fontWeight: "500",
+            borderRadius: "4px",
+            marginTop: "8px",
+          }}
+        >
+          {message.text}
+        </div>
+      )}
+    </div>
 
       </aside>
 
       <main className="main">
-      <div className="summary-boxes">
+  <div className="summary-boxes">
     <div className="box">
       <h4>Current</h4>
-      <p>
-        ${portfolioworth}      </p>
+      <p>${portfolioworth}</p>
     </div>
 
     <div className="box">
       <h4>Invested</h4>
-      <p>
-        ${portfolioInvestment}
-      </p>
+      <p>${portfolioInvestment}</p>
     </div>
 
     <div className="box">
@@ -515,21 +602,30 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
         {portfolioPLpercent.toFixed(2)}%
       </p>
     </div>
-  </div>
-        {chartData.length > 0 && (
-          <>
-            
-            <div className="chart-container">
-              <StockChart symbol={selectedSymbol} />
-              <div className="stock-details-container">
-                <StockDetails symbol={selectedSymbol} />
-              </div>
-            </div>
 
-            <NewsSentiment symbol={selectedSymbol} />
-          </>
-        )}
-      </main>
+    {/* New box for Available Funds */}
+    <div className="box">
+      <h4>Available Funds</h4>
+      <p style={{ color: availableFunds >= 0 ? "green" : "red" }}>
+        ${availableFunds.toFixed(2)}
+      </p>
+    </div>
+  </div>
+
+  {chartData.length > 0 && (
+    <>
+      <div className="chart-container">
+        <StockChart symbol={selectedSymbol} />
+        <div className="stock-details-container">
+          <StockDetails symbol={selectedSymbol} />
+        </div>
+      </div>
+
+      <NewsSentiment symbol={selectedSymbol} />
+    </>
+  )}
+</main>
+
     </div>
   );
 };

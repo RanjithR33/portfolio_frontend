@@ -34,20 +34,6 @@ const AnalysisPage = () => {
 
   if (!data) return <p>Loading analysis...</p>;
 
- // Chart configurations based on your data structure
-// const netWorthPie = {
-//   labels: [data.account.name],  // Account name from the "account" object
-//   datasets: [
-//     {
-//       label: "Account Balance",
-//       data: [data.account.cash_balance], // Account balance from the "account" object
-//       backgroundColor: ["#ff9800", "#9c27b0", "#03a9f4"],  // Customize colors as needed
-//       borderWidth: 1,
-//       borderColor: "#fff",
-//     },
-//   ],
-// };
-
   const topGainersData = {
     labels: data.insights.top_gainers.map((g: any) => g.name),
     datasets: [
@@ -106,7 +92,7 @@ const AnalysisPage = () => {
                 color: index.change_percent >= 0 ? "#4caf50" : "#f44336",
               }}
             >
-              {(index.change_percent/100).toFixed(2)}%
+              {(index.change_percent / 100).toFixed(2)}%
             </p>
           </div>
         ))}
@@ -114,23 +100,21 @@ const AnalysisPage = () => {
 
       {/* Charts */}
       <div style={styles.chartsGrid}>
-        {/* <div style={styles.chartCard}>
-          <h4 style={styles.chartTitle}>💰 Net Worth Allocation</h4>
-          <div style={styles.smallPieWrapper}>
-            <Pie data={netWorthPie} />
-          </div>
-        </div> */}
-
+        {/* Top Gainers */}
         <div style={styles.chartCard}>
           <h4 style={styles.chartTitle}>🚀 Top Gainers</h4>
           <Bar data={topGainersData} />
         </div>
 
+        {/* Top Losers */}
         <div style={styles.chartCard}>
           <h4 style={styles.chartTitle}>📉 Top Losers</h4>
           <Bar data={topLosersData} />
         </div>
+      </div>
 
+      {/* Performance Overview - Centered */}
+      <div style={styles.centeredChartContainer}>
         <div style={styles.chartCard}>
           <h4 style={styles.chartTitle}>📈 Performance Overview</h4>
           <Bar data={performanceData} />
@@ -201,9 +185,25 @@ const styles = {
     color: "black",
     textAlign: "center" as const,
   },
-  smallPieWrapper: {
-    width: "280px",
-    height: "280px",
+  centeredChartContainer: {
+
+    justifyContent: "center",
+    marginTop: "30px", // Add some space above the centered chart
+    marginBottom: "20px",
+  },
+  // Adjust the chart card inside the centered container to make it visually consistent with others
+  centeredChartCard: {
+    background: "#fff",
+    padding: "10px",
+    borderRadius: "10px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+    height: "400px",
+    width: "100%", // Ensure it spans the available width for a balanced layout
+    maxWidth: "600px", // Limit max width for large screens
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "center",
+    gap: "10px",
   },
 };
 
