@@ -96,6 +96,45 @@ const AnalysisPage: React.FC<Props> = ({ theme }) => {
     ],
   };
 
+  // Chart options with theme-aware colors for better visibility in dark mode
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: theme === "light" ? "#000" : "#fff", // Legend text color
+        },
+      },
+      title: {
+        display: false,
+        color: theme === "light" ? "#000" : "#fff", // Title color if needed
+      },
+      tooltip: {
+        bodyColor: theme === "light" ? "#000" : "#fff",
+        titleColor: theme === "light" ? "#000" : "#fff",
+        backgroundColor: theme === "light" ? "#fff" : "#333",
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: theme === "light" ? "#000" : "#fff", // X axis labels
+        },
+        grid: {
+          color: theme === "light" ? "#ddd" : "#444", // X axis grid lines
+        },
+      },
+      y: {
+        ticks: {
+          color: theme === "light" ? "#000" : "#fff", // Y axis labels
+        },
+        grid: {
+          color: theme === "light" ? "#ddd" : "#444", // Y axis grid lines
+        },
+      },
+    },
+  };
+
   return (
     <div style={styles.container}>
       <h2
@@ -151,7 +190,7 @@ const AnalysisPage: React.FC<Props> = ({ theme }) => {
           >
             🚀 Top Gainers
           </h4>
-          <Bar data={topGainersData} />
+          <Bar data={topGainersData} options={chartOptions} />
         </div>
 
         {/* Top Losers */}
@@ -169,7 +208,7 @@ const AnalysisPage: React.FC<Props> = ({ theme }) => {
           >
             📉 Top Losers
           </h4>
-          <Bar data={topLosersData} />
+          <Bar data={topLosersData} options={chartOptions} />
         </div>
       </div>
 
@@ -189,7 +228,7 @@ const AnalysisPage: React.FC<Props> = ({ theme }) => {
           >
             📈 Performance Overview
           </h4>
-          <Bar data={performanceData} />
+          <Bar data={performanceData} options={chartOptions} />
         </div>
       </div>
     </div>
