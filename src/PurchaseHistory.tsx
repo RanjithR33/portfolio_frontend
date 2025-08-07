@@ -11,19 +11,35 @@ interface Transaction {
   transaction_type: string;
 }
 
-const PurchaseHistoryPage: React.FC = () => {
+interface Props {
+  theme: any;
+}
+
+const PurchaseHistoryPage: React.FC<Props> = ({ theme }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Set body background & text color
   useEffect(() => {
-    // Fetch transaction data
+    document.body.style.backgroundColor =
+      theme === "light" ? "#f7f7f7" : "#1f1f1f";
+    document.body.style.color = theme === "light" ? "#000" : "#fff";
+
+    return () => {
+      document.body.style.backgroundColor = "";
+      document.body.style.color = "";
+    };
+  }, [theme]);
+
+  // Fetch transactions
+  useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/v1/transactions/account/1`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch transactions.");
-        }
+        const response = await fetch(
+          "http://localhost:5000/api/v1/transactions/account/1"
+        );
+        if (!response.ok) throw new Error("Failed to fetch transactions.");
         const data = await response.json();
         setTransactions(data);
       } catch (error: any) {
@@ -34,15 +50,52 @@ const PurchaseHistoryPage: React.FC = () => {
     };
 
     fetchTransactions();
-  }, []); // Empty dependency array to run only once when component mounts
+  }, []);
 
-  if (loading) {
-    return <div>Loading transactions...</div>;
-  }
+  if (loading) return <div>Loading transactions...</div>;
+  if (error) return <div>Error: {error}</div>;
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  // Styles using theme
+  const containerStyle: React.CSSProperties = {
+    padding: "40px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  };
+
+  const headerStyle: React.CSSProperties = {
+    textAlign: "center",
+    color: theme === "light" ? "#000" : "#fff",
+    marginBottom: "30px",
+    fontSize: "2rem",
+    fontWeight: "600",
+  };
+
+  const tableStyle: React.CSSProperties = {
+    width: "80%",
+    borderCollapse: "collapse",
+    boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    backgroundColor: theme === "light" ? "#fff" : "#2c3e50",
+    color: theme === "light" ? "#000" : "#fff",
+  };
+
+  const theadStyle: React.CSSProperties = {
+    backgroundColor: theme === "light" ? "#34495e" : "#1abc9c",
+    color: "#fff",
+    fontSize: "16px",
+    fontWeight: "600",
+    textTransform: "uppercase",
+  };
+
+  const transactionRowStyle: React.CSSProperties = {
+    borderBottom: "1px solid #ddd",
+    textAlign: "center",
+    fontSize: "14px",
+    padding: "12px",
+    transition: "background-color 0.3s",
+    color: theme === "light" ? "#000" : "#fff",
+  };
 
   return (
     <div style={containerStyle}>
@@ -69,7 +122,7 @@ const PurchaseHistoryPage: React.FC = () => {
               <td>{transaction.quantity}</td>
               <td
                 style={{
-                  color: transaction.total_amount < 0 ? "#E74C3C" : "#27AE60", // red for buys, green for sells
+                  color: transaction.total_amount < 0 ? "#E74C3C" : "#27AE60",
                   fontWeight: "bold",
                 }}
               >
@@ -83,47 +136,6 @@ const PurchaseHistoryPage: React.FC = () => {
       </table>
     </div>
   );
-};
-
-// Styles
-const containerStyle: React.CSSProperties = {
-  padding: "40px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-};
-
-const headerStyle: React.CSSProperties = {
-  textAlign: "center",
-  color: "white",
-  marginBottom: "30px",
-  fontSize: "2rem",
-  fontWeight: "600",
-};
-
-const tableStyle: React.CSSProperties = {
-  width: "80%",
-  borderCollapse: "collapse",
-  boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
-  borderRadius: "8px",
-  backgroundColor: "#fff",
-};
-
-const theadStyle: React.CSSProperties = {
-  backgroundColor: "#34495e",
-  color: "#fff",
-  fontSize: "16px",
-  fontWeight: "600",
-  textTransform: "uppercase",
-};
-
-const transactionRowStyle: React.CSSProperties = {
-  borderBottom: "1px solid #ddd",
-  textAlign: "center",
-  fontSize: "14px",
-  padding: "12px",
-  transition: "background-color 0.3s",
-  color: "black",
 };
 
 export default PurchaseHistoryPage;

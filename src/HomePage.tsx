@@ -28,7 +28,7 @@ type Performance = {
   overall_pl: any;
   overall_pl_percent: any;
   todays_change_amount: any;
-  total_initial_investment:any;
+  total_initial_investment: any;
 };
 
 type ApiResponse = {
@@ -76,7 +76,9 @@ const HomePage: React.FC<{ theme: string }> = ({ theme }) => {
   const [portfolioId] = useState<number>(1); // Example portfolioId, set this dynamically
   const [availableFunds, setAvailableFunds] = useState<number>(0);
   const [fundsToAdd, setFundsToAdd] = useState<number>(0);
-const [message, setMessage] = useState<{ type: string, text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: string; text: string } | null>(
+    null
+  );
 
   const [newListName, setNewListName] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
@@ -88,33 +90,31 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
   // const profitLoss = currentValue - invested;
   // const rateOfReturn = (profitLoss / invested) * 100;
   const [holdings, setHoldings] = useState<Holding[]>([]);
-  
 
-  const [portfolioworth ,Setworth] = useState<number>(1);
+  const [portfolioworth, Setworth] = useState<number>(1);
 
-  const [portfolioPL ,SetPL] = useState<number>(1);
-  
-  const [portfolioPLpercent ,SetPLpercent] = useState<number>(1);
-  
-  const [portfolioInvestment ,SetInvestment] = useState<number>(1);
+  const [portfolioPL, SetPL] = useState<number>(1);
+
+  const [portfolioPLpercent, SetPLpercent] = useState<number>(1);
+
+  const [portfolioInvestment, SetInvestment] = useState<number>(1);
   // const [performanceData, setPerformanceData] = useState<Performance | null>(null);
 
-
   const navigate = useNavigate();
-  const { symbol, action } = useParams();  // Capture symbol and action from the URL
+  const { symbol, action } = useParams(); // Capture symbol and action from the URL
 
   useEffect(() => {
     if (symbol) {
       setSelectedSymbol(symbol); // Update selectedSymbol based on URL
     }
-  }, [symbol]);  // Run when symbol changes in the URL
+  }, [symbol]); // Run when symbol changes in the URL
 
   const handleAddClick = () => {
-    navigate(`/transactions/${selectedSymbol}/buy`);  // Use selectedSymbol here
+    navigate(`/transactions/${selectedSymbol}/buy`); // Use selectedSymbol here
   };
 
   const handleRemoveClick = () => {
-    navigate(`/transactions/${selectedSymbol}/sell`);  // Use selectedSymbol here
+    navigate(`/transactions/${selectedSymbol}/sell`); // Use selectedSymbol here
   };
   const handleAddFunds = async () => {
     if (fundsToAdd <= 0) {
@@ -123,36 +123,52 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/accounts/1/funds`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "DEPOSIT",  // Action type
-          amount: fundsToAdd, // Amount to add
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/v1/accounts/1/funds`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "DEPOSIT", // Action type
+            amount: fundsToAdd, // Amount to add
+          }),
+        }
+      );
 
       if (response.ok) {
-        setMessage({ type: "success", text: `Successfully added $${fundsToAdd.toFixed(2)} to your portfolio.` });
+        setMessage({
+          type: "success",
+          text: `Successfully added $${fundsToAdd.toFixed(
+            2
+          )} to your portfolio.`,
+        });
         setFundsToAdd(0); // Reset input field
 
         // Refetch portfolio data to update the available funds
         fetchPortfolioData();
       } else {
-        setMessage({ type: "error", text: "Failed to add funds. Please try again." });
+        setMessage({
+          type: "error",
+          text: "Failed to add funds. Please try again.",
+        });
       }
     } catch (error) {
       console.error("Error adding funds:", error);
-      setMessage({ type: "error", text: "An error occurred. Please try again." });
+      setMessage({
+        type: "error",
+        text: "An error occurred. Please try again.",
+      });
     }
   };
 
   // Function to fetch portfolio data
   const fetchPortfolioData = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/summary`);
+      const response = await fetch(
+        `http://localhost:5000/api/v1/portfolio/${portfolioId}/summary`
+      );
       const data: ApiResponse = await response.json();
 
       // Update state based on the API response
@@ -170,31 +186,29 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
   // Fetch portfolio data when the component mounts
   useEffect(() => {
     fetchPortfolioData();
-  }, []);  // Only fetch on mount
+  }, []); // Only fetch on mount
 
-  
   // Extract performance data
   // const { current_holdings_worth, overall_pl, total_initial_investment } = performanceData;
 
   // Calculate Rate of Return
 
-
-
-
   useEffect(() => {
-    fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/holdings-value`)
-      .then(res => res.json())
-      .then(value => {
+    fetch(
+      `http://localhost:5000/api/v1/portfolio/${portfolioId}/holdings-value`
+    )
+      .then((res) => res.json())
+      .then((value) => {
         // Optionally display total holdings value elsewhere
       })
-      .catch(err => console.error("Error fetching total value:", err));
-  
+      .catch((err) => console.error("Error fetching total value:", err));
+
     fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/holdings`)
-      .then(res => res.json())
+      .then((res) => res.json())
       .then((data) => setHoldings(data))
-      .catch(err => console.error("Error fetching detailed holdings:", err));
+      .catch((err) => console.error("Error fetching detailed holdings:", err));
   }, [portfolioId]);
-  
+
   useEffect(() => {
     fetch(`http://127.0.0.1:5000/api/v1/watchlists/1`)
       .then((res) => res.json())
@@ -255,13 +269,16 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
   const addToWatchlist = (symbol: string) => {
     const currentList = watchlists[currentListName];
     console.log(JSON.stringify({ ticker: symbol }));
-  
+
     // Prevent duplicates
-    if (Array.isArray(currentList?.items) && currentList.items.some(item => item.ticker_symbol === symbol)) {
+    if (
+      Array.isArray(currentList?.items) &&
+      currentList.items.some((item) => item.ticker_symbol === symbol)
+    ) {
       setErrorMessage("This stock is already in your watchlist.");
       return;
     }
-  
+
     fetch(`http://localhost:5000/api/v1/watchlists/${currentList.id}/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -277,7 +294,10 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
           ticker_symbol: symbol,
         };
         setWatchlists((prev) => {
-          const updatedItems = [...(prev[currentListName]?.items || []), newAsset];
+          const updatedItems = [
+            ...(prev[currentListName]?.items || []),
+            newAsset,
+          ];
           return {
             ...prev,
             [currentListName]: {
@@ -290,16 +310,20 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
       })
       .catch((err) => {
         console.error("Error adding item:", err);
-        setErrorMessage("Failed to add item to the watchlist. Please try again.");
+        setErrorMessage(
+          "Failed to add item to the watchlist. Please try again."
+        );
       });
   };
-  
+
   const removeFromWatchlist = (symbol: string) => {
     const currentList = watchlists[currentListName];
     if (!currentList) return;
 
     // Find the asset by ticker_symbol
-    const assetToRemove = currentList.items.find((item) => item.ticker_symbol === symbol);
+    const assetToRemove = currentList.items.find(
+      (item) => item.ticker_symbol === symbol
+    );
     if (!assetToRemove) return;
 
     const updatedItems = currentList.items.filter(
@@ -334,12 +358,11 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
       const { [name]: _, ...remainingWatchlists } = prev;
       return remainingWatchlists;
     });
-  
+
     const newCurrentListName = Object.keys(watchlists)[0] || "Default";
     setCurrentListName(newCurrentListName);
   };
-  
-  
+
   const handleCreateWatchlist = () => {
     if (newListName.trim() && !watchlists[newListName]) {
       fetch(`http://localhost:5000/api/v1/watchlists/`, {
@@ -362,70 +385,68 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
   };
 
   return (
-    
     <div className={`app ${theme}`}>
       <aside className="sidebar">
         <div style={{ marginBottom: "20px" }}>
-      <CustomDropdown
-          watchlists={watchlists}
-          currentListName={currentListName}
-          setCurrentListName={setCurrentListName}
-          onRemove={handleRemoveWatchlist}
-        /></div>
-        
-{/* New Watchlist Button and Input */}
-<div style={{ marginBottom: "20px" }}>
-  <input
-    type="text"
-    placeholder="Enter new watchlist name"
-    value={newListName}
-    onChange={(e) => setNewListName(e.target.value)}
-    style={{
-      width: "95%",
-      padding: "8px",
-      marginBottom: "8px",
-      borderRadius: "6px",
-      border: "1px solid #ccc",
-    }}
-  />
-  <button
-    onClick={handleCreateWatchlist}
-    style={{
-      width: "100%",
-      padding: "8px",
-      backgroundColor: "#28a745", // Green button
-      color: "white",
-      border: "none",
-      borderRadius: "6px",
-      cursor: "pointer",
-    }}
-  >
-    Create New Watchlist
-  </button>
-</div>
+          <CustomDropdown
+            watchlists={watchlists}
+            currentListName={currentListName}
+            setCurrentListName={setCurrentListName}
+            onRemove={handleRemoveWatchlist}
+          />
+        </div>
 
-<div style={{ marginBottom: "20px" }}>
-  <SearchBar onAdd={addToWatchlist} />
+        {/* New Watchlist Button and Input */}
+        <div style={{ marginBottom: "20px" }}>
+          <input
+            type="text"
+            placeholder="Enter new watchlist name"
+            value={newListName}
+            onChange={(e) => setNewListName(e.target.value)}
+            style={{
+              width: "95%",
+              padding: "8px",
+              marginBottom: "8px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+            }}
+          />
+          <button
+            onClick={handleCreateWatchlist}
+            style={{
+              width: "100%",
+              padding: "8px",
+              backgroundColor: "#28a745", // Green button
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            Create New Watchlist
+          </button>
+        </div>
 
-  {/* Show error message if there's one */}
-  {errorMessage && (
-    <div
-      style={{
-        color: "#fff", // White text
-        fontSize: "14px", // Normal font size
-        fontWeight: "500", // Medium font weight
-        backgroundColor: "#d32f2f", // Red background
-        padding: "12px 16px", // Sufficient padding for better spacing
-        borderRadius: "4px", // Slight rounded corners
-        marginTop: "8px", // Space between search bar and error message
-      }}
-    >
-      {errorMessage}
-    </div>
-  )}
-</div>
+        <div style={{ marginBottom: "20px" }}>
+          <SearchBar onAdd={addToWatchlist} />
 
-
+          {/* Show error message if there's one */}
+          {errorMessage && (
+            <div
+              style={{
+                color: "#fff", // White text
+                fontSize: "14px", // Normal font size
+                fontWeight: "500", // Medium font weight
+                backgroundColor: "#d32f2f", // Red background
+                padding: "12px 16px", // Sufficient padding for better spacing
+                borderRadius: "4px", // Slight rounded corners
+                marginTop: "8px", // Space between search bar and error message
+              }}
+            >
+              {errorMessage}
+            </div>
+          )}
+        </div>
 
         <Watchlist
           items={watchlists[currentListName]?.items || []}
@@ -448,53 +469,49 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
             </optgroup>
 
             <optgroup label="Holdings">
-            {Array.from(
-  new Set(holdings.map((h) => h.ticker_symbol))
-).map((symbol) => (
-  <option key={symbol} value={symbol}>
-    {symbol}
-  </option>
-))}
-
-</optgroup>
-
-
+              {Array.from(new Set(holdings.map((h) => h.ticker_symbol))).map(
+                (symbol) => (
+                  <option key={symbol} value={symbol}>
+                    {symbol}
+                  </option>
+                )
+              )}
+            </optgroup>
           </select>
 
           <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
-      <button
-        onClick={() => handleAddClick()}  // Replace "AAPL" with your symbol
-        style={{
-          flex: 1,
-          padding: "8px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-      >
-        BUY
-      </button>
+            <button
+              onClick={() => handleAddClick()} // Replace "AAPL" with your symbol
+              style={{
+                flex: 1,
+                padding: "8px",
+                backgroundColor: "#007bff",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              BUY
+            </button>
 
-      <button
-        onClick={() => handleRemoveClick()}  // Replace "AAPL" with your symbol
-        style={{
-          flex: 1,
-          padding: "8px",
-          backgroundColor: "#dc3545",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-      >
-        SELL
-      </button>
-    </div>
+            <button
+              onClick={() => handleRemoveClick()} // Replace "AAPL" with your symbol
+              style={{
+                flex: 1,
+                padding: "8px",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              SELL
+            </button>
+          </div>
         </div>
-       
- 
+
         {/* <div>
   <h4>Current Holdings:</h4>
   <ul style={{ listStyle: "none", paddingLeft: 0, fontSize: "14px" }}>
@@ -526,106 +543,105 @@ const [message, setMessage] = useState<{ type: string, text: string } | null>(nu
     ))}
   </ul>
 </div> */}
-{/* Add Funds Section */}
-<div style={{ marginBottom: "20px" }}>
-      <h4>Add Funds to Portfolio</h4>
-      <input
-        type="number"
-        placeholder="Enter amount to add"
-        value={fundsToAdd}
-        onChange={(e) => setFundsToAdd(Number(e.target.value))}
-        style={{
-          width: "95%",
-          padding: "8px",
-          marginBottom: "8px",
-          borderRadius: "6px",
-          border: "1px solid #ccc",
-        }}
-      />
-      <button
-        onClick={handleAddFunds}
-        style={{
-          width: "100%",
-          padding: "8px",
-          backgroundColor: "#28a745", // Green button
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-      >
-        Add Funds
-      </button>
+        {/* Add Funds Section */}
+        <div style={{ marginBottom: "20px" }}>
+          <h4>Add Funds to Portfolio</h4>
+          <input
+            type="number"
+            placeholder="Enter amount to add"
+            value={fundsToAdd}
+            onChange={(e) => setFundsToAdd(Number(e.target.value))}
+            style={{
+              width: "95%",
+              padding: "8px",
+              marginBottom: "8px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+            }}
+          />
+          <button
+            onClick={handleAddFunds}
+            style={{
+              width: "100%",
+              padding: "8px",
+              backgroundColor: "#28a745", // Green button
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            Add Funds
+          </button>
 
-      {/* Show error/success message if there's one */}
-      {message && (
-        <div
-          style={{
-            color: message.type === "error" ? "#fff" : "#000", // White for error, black for success
-            backgroundColor: message.type === "error" ? "#d32f2f" : "#28a745", // Red for error, Green for success
-            padding: "12px 16px",
-            fontSize: "14px",
-            fontWeight: "500",
-            borderRadius: "4px",
-            marginTop: "8px",
-          }}
-        >
-          {message.text}
+          {/* Show error/success message if there's one */}
+          {message && (
+            <div
+              style={{
+                color: message.type === "error" ? "#fff" : "#000", // White for error, black for success
+                backgroundColor:
+                  message.type === "error" ? "#d32f2f" : "#28a745", // Red for error, Green for success
+                padding: "12px 16px",
+                fontSize: "14px",
+                fontWeight: "500",
+                borderRadius: "4px",
+                marginTop: "8px",
+              }}
+            >
+              {message.text}
+            </div>
+          )}
         </div>
-      )}
-    </div>
-
       </aside>
 
       <main className="main">
-  <div className="summary-boxes">
-    <div className="box">
-      <h4>Current</h4>
-      <p>${portfolioworth}</p>
-    </div>
+        <div className="summary-boxes">
+          <div className="box">
+            <h4>Current</h4>
+            <p>${portfolioworth}</p>
+          </div>
 
-    <div className="box">
-      <h4>Invested</h4>
-      <p>${portfolioInvestment}</p>
-    </div>
+          <div className="box">
+            <h4>Invested</h4>
+            <p>${portfolioInvestment}</p>
+          </div>
 
-    <div className="box">
-      <h4>P/L</h4>
-      <p style={{ color: portfolioPL >= 0 ? "green" : "red" }}>
-        ${portfolioPL.toFixed(2)}
-      </p>
-    </div>
+          <div className="box">
+            <h4>P/L</h4>
+            <p style={{ color: portfolioPL >= 0 ? "green" : "red" }}>
+              ${portfolioPL.toFixed(2)}
+            </p>
+          </div>
 
-    <div className="box">
-      <h4>Rate of Return</h4>
-      <p style={{ color: portfolioPLpercent >= 0 ? "green" : "red" }}>
-        {portfolioPLpercent.toFixed(2)}%
-      </p>
-    </div>
+          <div className="box">
+            <h4>Rate of Return</h4>
+            <p style={{ color: portfolioPLpercent >= 0 ? "green" : "red" }}>
+              {portfolioPLpercent.toFixed(2)}%
+            </p>
+          </div>
 
-    {/* New box for Available Funds */}
-    <div className="box">
-      <h4>Available Funds</h4>
-      <p style={{ color: availableFunds >= 0 ? "green" : "red" }}>
-        ${availableFunds.toFixed(2)}
-      </p>
-    </div>
-  </div>
-
-  {chartData.length > 0 && (
-    <>
-      <div className="chart-container">
-        <StockChart symbol={selectedSymbol} />
-        <div className="stock-details-container">
-          <StockDetails symbol={selectedSymbol} />
+          {/* New box for Available Funds */}
+          <div className="box">
+            <h4>Available Funds</h4>
+            <p style={{ color: availableFunds >= 0 ? "green" : "red" }}>
+              ${availableFunds.toFixed(2)}
+            </p>
+          </div>
         </div>
-      </div>
 
-      <NewsSentiment symbol={selectedSymbol} />
-    </>
-  )}
-</main>
+        {chartData.length > 0 && (
+          <>
+            <div className="chart-container">
+              <StockChart symbol={selectedSymbol} />
+              <div className="stock-details-container">
+                <StockDetails symbol={selectedSymbol} />
+              </div>
+            </div>
 
+            <NewsSentiment symbol={selectedSymbol} theme={theme} />
+          </>
+        )}
+      </main>
     </div>
   );
 };

@@ -2,16 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 // StockDetails Component
-function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetched: (price: number) => void }) {
+function StockDetails({
+  symbol,
+  onPriceFetched,
+}: {
+  symbol: string;
+  onPriceFetched: (price: number) => void;
+}) {
   const [quote, setQuote] = useState<any | null>(null);
 
   useEffect(() => {
     fetch(
       // `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=uJCcPpdhlH3MTrn7JwRtHnoSP4XR1MiG`
-        //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
-         `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=PLBb4Vn8eW8bLQ3MvtZeutZQo3Tbg7un`
-        //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
-
+      //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=V71VMgepxb3RZYEOoxKVLnRD00hXXyLj`
+      `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=PLBb4Vn8eW8bLQ3MvtZeutZQo3Tbg7un`
+      //  `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=p76qI5YAashYVDQdOsjPy9gCqER6pJ4c`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -46,8 +51,7 @@ function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetch
       </div>
     );
   }
-  
-  
+
   return (
     <div>
       <h4>
@@ -63,21 +67,47 @@ function StockDetails({ symbol, onPriceFetched }: { symbol: string; onPriceFetch
     </div>
   );
 }
+type Props = {
+  theme: any;
+};
 
-function TransactionPage() {
+const TransactionPage: React.FC<Props> = ({ theme }) => {
   const { symbol, action } = useParams<{ symbol: string; action: string }>();
 
   // State initialization based on URL params
-  const [transactionType, setTransactionType] = useState<"buy" | "sell">(action === "buy" ? "buy" : "sell");
-  const [orderType, setOrderType] = useState<"MARKET" | "LIMIT" | "STOP_LOSS">("MARKET");
+  const [transactionType, setTransactionType] = useState<"buy" | "sell">(
+    action === "buy" ? "buy" : "sell"
+  );
+  const [orderType, setOrderType] = useState<"MARKET" | "LIMIT" | "STOP_LOSS">(
+    "MARKET"
+  );
   const [quantity, setQuantity] = useState<number>(0);
   const [price, setPrice] = useState<number>(0);
   const [selectedStock, setSelectedStock] = useState<string>(symbol || "AAPL");
-  const [transactionDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [transactionDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
 
   // New state for feedback messages
   const [message, setMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(
+    null
+  );
+  useEffect(() => {
+    if (theme === "light") {
+      document.body.style.backgroundColor = "#f7f7f7";
+      document.body.style.color = "#000";
+    } else {
+      document.body.style.backgroundColor = "#1f1f1f";
+      document.body.style.color = "#fff";
+    }
+
+    // Optional cleanup: reset styles if component unmounts or theme changes
+    return () => {
+      document.body.style.backgroundColor = "";
+      document.body.style.color = "";
+    };
+  }, [theme]);
 
   useEffect(() => {
     if (symbol) {
@@ -130,7 +160,10 @@ function TransactionPage() {
   const amount = price * quantity;
 
   return (
-    <div className="transaction-page" style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}>
+    <div
+      className="transaction-page"
+      style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}
+    >
       <h2>Transaction Page</h2>
 
       {/* Feedback Message */}
@@ -156,20 +189,35 @@ function TransactionPage() {
             type="text"
             value={selectedStock}
             onChange={(e) => setSelectedStock(e.target.value.toUpperCase())}
-            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: "6px",
+              marginBottom: "10px",
+            }}
           />
         </label>
       </div>
 
-      <StockDetails symbol={selectedStock} onPriceFetched={handlePriceFetched} />
+      <StockDetails
+        symbol={selectedStock}
+        onPriceFetched={handlePriceFetched}
+      />
 
       <div style={{ marginBottom: "20px" }}>
         <label>
           Transaction Type:
           <select
             value={transactionType}
-            onChange={(e) => setTransactionType(e.target.value as "buy" | "sell")}
-            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
+            onChange={(e) =>
+              setTransactionType(e.target.value as "buy" | "sell")
+            }
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: "6px",
+              marginBottom: "10px",
+            }}
           >
             <option value="buy">Buy</option>
             <option value="sell">Sell</option>
@@ -182,8 +230,15 @@ function TransactionPage() {
           Order Type:
           <select
             value={orderType}
-            onChange={(e) => setOrderType(e.target.value as "MARKET" | "LIMIT" | "STOP_LOSS")}
-            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
+            onChange={(e) =>
+              setOrderType(e.target.value as "MARKET" | "LIMIT" | "STOP_LOSS")
+            }
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: "6px",
+              marginBottom: "10px",
+            }}
           >
             <option value="MARKET">Market</option>
             <option value="LIMIT">Limit</option>
@@ -199,7 +254,12 @@ function TransactionPage() {
             type="number"
             value={quantity}
             onChange={handleQuantityChange}
-            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: "6px",
+              marginBottom: "10px",
+            }}
           />
         </label>
       </div>
@@ -211,7 +271,13 @@ function TransactionPage() {
             type="number"
             value={amount.toFixed(2)}
             disabled
-            style={{ width: "100%", padding: "8px", borderRadius: "6px", marginBottom: "10px" }}
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: "6px",
+              marginBottom: "10px",
+              color: "black",
+            }}
           />
         </label>
       </div>
@@ -234,6 +300,6 @@ function TransactionPage() {
       </button>
     </div>
   );
-}
+};
 
 export default TransactionPage;

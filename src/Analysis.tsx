@@ -21,9 +21,26 @@ ChartJS.register(
   Legend
 );
 
-const AnalysisPage = () => {
+interface Props {
+  theme: any;
+}
+
+const AnalysisPage: React.FC<Props> = ({ theme }) => {
   const [data, setData] = useState<any>(null);
   const portfolioId = 1; // Replace with dynamic ID if needed
+
+  useEffect(() => {
+    // Theme background update
+    document.body.style.backgroundColor =
+      theme === "light" ? "#f7f7f7" : "#1f1f1f";
+    document.body.style.color = theme === "light" ? "#000" : "#fff";
+
+    return () => {
+      // Reset on unmount
+      document.body.style.backgroundColor = "";
+      document.body.style.color = "";
+    };
+  }, [theme]);
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/v1/portfolio/${portfolioId}/summary`)
@@ -50,7 +67,9 @@ const AnalysisPage = () => {
     datasets: [
       {
         label: "Losses (₹)",
-        data: data.insights.top_losers.map((l: any) => Math.abs(l.change_amount)),
+        data: data.insights.top_losers.map((l: any) =>
+          Math.abs(l.change_amount)
+        ),
         backgroundColor: "#f44336",
       },
     ],
@@ -79,13 +98,30 @@ const AnalysisPage = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}>📊 Portfolio Analysis</h2>
+      <h2
+        style={{ ...styles.header, color: theme === "light" ? "#000" : "#fff" }}
+      >
+        📊 Portfolio Analysis
+      </h2>
 
       {/* Market Indices */}
       <div style={styles.indicesContainer}>
         {data.market_indices.map((index: any) => (
-          <div key={index.name} style={styles.indexBox}>
-            <p style={styles.indexName}>{index.name}</p>
+          <div
+            key={index.name}
+            style={{
+              ...styles.indexBox,
+              background: theme === "light" ? "#fff" : "#2e2e2e",
+            }}
+          >
+            <p
+              style={{
+                ...styles.indexName,
+                color: theme === "light" ? "#333" : "#ccc",
+              }}
+            >
+              {index.name}
+            </p>
             <p
               style={{
                 ...styles.indexValue,
@@ -101,22 +137,58 @@ const AnalysisPage = () => {
       {/* Charts */}
       <div style={styles.chartsGrid}>
         {/* Top Gainers */}
-        <div style={styles.chartCard}>
-          <h4 style={styles.chartTitle}>🚀 Top Gainers</h4>
+        <div
+          style={{
+            ...styles.chartCard,
+            background: theme === "light" ? "#fff" : "#2e2e2e",
+          }}
+        >
+          <h4
+            style={{
+              ...styles.chartTitle,
+              color: theme === "light" ? "#000" : "#fff",
+            }}
+          >
+            🚀 Top Gainers
+          </h4>
           <Bar data={topGainersData} />
         </div>
 
         {/* Top Losers */}
-        <div style={styles.chartCard}>
-          <h4 style={styles.chartTitle}>📉 Top Losers</h4>
+        <div
+          style={{
+            ...styles.chartCard,
+            background: theme === "light" ? "#fff" : "#2e2e2e",
+          }}
+        >
+          <h4
+            style={{
+              ...styles.chartTitle,
+              color: theme === "light" ? "#000" : "#fff",
+            }}
+          >
+            📉 Top Losers
+          </h4>
           <Bar data={topLosersData} />
         </div>
       </div>
 
-      {/* Performance Overview - Centered */}
+      {/* Performance Overview */}
       <div style={styles.centeredChartContainer}>
-        <div style={styles.centeredChartCard}>
-          <h4 style={styles.chartTitle}>📈 Performance Overview</h4>
+        <div
+          style={{
+            ...styles.centeredChartCard,
+            background: theme === "light" ? "#fff" : "#2e2e2e",
+          }}
+        >
+          <h4
+            style={{
+              ...styles.chartTitle,
+              color: theme === "light" ? "#000" : "#fff",
+            }}
+          >
+            📈 Performance Overview
+          </h4>
           <Bar data={performanceData} />
         </div>
       </div>
@@ -124,13 +196,14 @@ const AnalysisPage = () => {
   );
 };
 
+// Styles
 const styles = {
   container: {
     maxWidth: "1100px",
     margin: "0 auto",
     padding: "20px",
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    boxSizing: "border-box" as const, // Ensure padding doesn't affect layout
+    boxSizing: "border-box" as const,
   },
   header: {
     textAlign: "center" as const,
@@ -145,18 +218,16 @@ const styles = {
     marginBottom: "30px",
   },
   indexBox: {
-    background: "#ffffff",
     border: "1px solid #ddd",
     borderRadius: "8px",
     padding: "12px 16px",
     width: "140px",
     textAlign: "center" as const,
     boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    overflow: "hidden", // Prevent content from spilling out
+    overflow: "hidden",
   },
   indexName: {
     fontSize: "14px",
-    color: "#555",
     marginBottom: "6px",
     fontWeight: 600,
   },
@@ -171,7 +242,6 @@ const styles = {
     marginBottom: "30px",
   },
   chartCard: {
-    background: "#fff",
     padding: "10px",
     borderRadius: "10px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
@@ -180,40 +250,38 @@ const styles = {
     alignItems: "center",
     gap: "10px",
     height: "400px",
-    overflow: "hidden", // Prevent chart from overflowing
-    flexGrow: 1, // Allow the card to grow within the layout
+    overflow: "hidden",
+    flexGrow: 1,
   },
   chartTitle: {
     margin: "6px 0 0 0",
     fontSize: "16px",
     fontWeight: 600,
-    color: "black",
     textAlign: "center" as const,
   },
   centeredChartContainer: {
     display: "flex",
     justifyContent: "center",
-    marginTop: "30px", // Add space above the centered chart
+    marginTop: "30px",
     marginBottom: "20px",
-    width: "100%", // Ensure it takes full width
-    overflow: "hidden", // Prevent overflow of content
-    flexWrap: "wrap" as const, // Allow charts to wrap inside the container
-    justifyItems: "center", // Center content horizontally
+    width: "100%",
+    overflow: "hidden",
+    flexWrap: "wrap" as const,
+    justifyItems: "center",
   },
   centeredChartCard: {
-    background: "#fff",
     padding: "10px",
     borderRadius: "10px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-    height: "500px", // Ensure the height is fixed
-    width: "100%", // Ensure it spans the available width
-    maxWidth: "800px", // Limit max width for large screens
+    height: "500px",
+    width: "100%",
+    maxWidth: "800px",
     display: "flex",
     flexDirection: "column" as const,
     alignItems: "center",
     gap: "10px",
-    overflow: "hidden", // Prevent any overflow issues
-    flexGrow: 1, // Allow the card to grow if needed
+    overflow: "hidden",
+    flexGrow: 1,
   },
 };
 

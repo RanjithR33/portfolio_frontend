@@ -8,7 +8,7 @@ import PurchaseHistoryPage from "./PurchaseHistory"; // Import the new page
 
 const App = () => {
   const [theme, setTheme] = useState("light");
-  
+
   const toggleTheme = () =>
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
 
@@ -76,10 +76,17 @@ const App = () => {
       <div className={theme}>
         <Routes>
           <Route path="/" element={<HomePage theme={theme} />} />
-          <Route path="/history" element={<GraphPage />} />
-          <Route path="/transactions/:symbol/:action" element={<TransactionPage />} />
-          <Route path="/analysis" element={<AnalysisPage />} />
-          <Route path="/purchase-history" element={<PurchaseHistoryPage />} /> {/* New Route */}
+          <Route path="/history" element={<GraphPage theme={theme} />} />
+          <Route
+            path="/transactions/:symbol/:action"
+            element={<TransactionPage theme={theme} />}
+          />
+          <Route path="/analysis" element={<AnalysisPage theme={theme} />} />
+          <Route
+            path="/purchase-history"
+            element={<PurchaseHistoryPage theme={theme} />}
+          />{" "}
+          {/* New Route */}
         </Routes>
       </div>
     </Router>

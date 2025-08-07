@@ -33,8 +33,11 @@ type Holding = {
   unrealized_pnl: number;
   last_price: number | null;
 };
+type Props = {
+  theme: any;
+};
 
-const GraphPage: React.FC = () => {
+const GraphPage: React.FC<Props> = ({ theme }) => {
   const [portfolioData, setPortfolioData] = useState<Holding[]>([]);
   const portfolioId = "1"; // You can dynamically set the portfolioId here
 
@@ -120,10 +123,13 @@ const GraphPage: React.FC = () => {
   // --- Render the chart and table ---
   return (
     <div
+      className={theme}
       style={{
         padding: "20px",
         minHeight: "100vh",
-        color: "black",
+        backgroundColor: theme === "light" ? "#f7f7f7" : "#1f1f1f",
+        color: "#808080",
+        transition: "background-color 0.3s ease, color 0.3s ease",
       }}
     >
       <div

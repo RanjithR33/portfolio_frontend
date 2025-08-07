@@ -8,7 +8,12 @@ interface NewsItem {
   description: string;
 }
 
-const NewsSentiment = ({ symbol }: { symbol: string }) => {
+interface Props {
+  symbol: string;
+  theme: any;
+}
+
+const NewsSentiment: React.FC<Props> = ({ symbol, theme }) => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,7 +30,7 @@ const NewsSentiment = ({ symbol }: { symbol: string }) => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.results)) {
-          const limited = data.results.slice(0, 5); // ✅ Enforce max 5 items
+          const limited = data.results.slice(0, 5); // Limit to 5 items
           setNews(limited);
         } else {
           setNews([]);
@@ -38,22 +43,53 @@ const NewsSentiment = ({ symbol }: { symbol: string }) => {
       .finally(() => setLoading(false));
   }, [symbol]);
 
+  // Theme-based styling
+  const isLight = theme === "light";
+
+  const containerStyle: React.CSSProperties = {
+    background: isLight ? "#ffffff" : "rgba(255, 255, 255, 0.05)",
+    color: isLight ? "#000" : "#fff",
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 20,
+    backdropFilter: isLight ? undefined : "blur(8px)",
+    boxShadow: isLight
+      ? "0 4px 12px rgba(0, 0, 0, 0.05)"
+      : "0 4px 20px rgba(0, 0, 0, 0.2)",
+    border: isLight ? "1px solid #ddd" : "1px solid rgba(255, 255, 255, 0.2)",
+  };
+
+  const titleStyle: React.CSSProperties = {
+    marginBottom: "12px",
+    color: isLight ? "#333" : "#fff",
+  };
+
+  const linkStyle: React.CSSProperties = {
+    fontWeight: "bold",
+    textDecoration: "none",
+    color: isLight ? "#1976d2" : "#64b5f6",
+  };
+
+  const metaStyle: React.CSSProperties = {
+    fontSize: "12px",
+    color: isLight ? "#666" : "#ccc",
+  };
+
+  const descriptionStyle: React.CSSProperties = {
+    fontSize: "13px",
+    marginTop: 4,
+    color: isLight ? "#444" : "#ccc",
+  };
+
+  const errorStyle: React.CSSProperties = {
+    color: "#db4437",
+  };
+
   return (
-    <div
-      style={{
-        background: "rgba(255, 255, 255, 0.1)", // Semi-transparent white background
-        padding: 16,
-        borderRadius: 12,
-        marginTop: 20,
-        backdropFilter: "blur(8px)", // Glassmorphism blur effect
-        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)", // Soft shadow for depth
-        color: "#fff", // Text color for better contrast
-        border: "1px solid rgba(255, 255, 255, 0.2)", // Light border for glass effect
-      }}
-    >
-      <h3 style={{ marginBottom: "12px", color: "#fff" }}>Stock News</h3>
+    <div style={containerStyle}>
+      <h3 style={titleStyle}>📢 Stock News</h3>
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "#db4437" }}>{error}</p>} {/* Error color in red */}
+      {error && <p style={errorStyle}>{error}</p>}
 
       <ul style={{ listStyle: "disc", paddingLeft: 20 }}>
         {news.map((item, index) => (
@@ -62,19 +98,15 @@ const NewsSentiment = ({ symbol }: { symbol: string }) => {
               href={item.link}
               target="_blank"
               rel="noreferrer"
-              style={{
-                fontWeight: "bold",
-                textDecoration: "none",
-                color: "#2196F3", // Link color
-              }}
+              style={linkStyle}
             >
               {item.title}
             </a>
-            <div style={{ fontSize: "12px", color: "#ddd" }}>
+            <div style={metaStyle}>
               {item.source_id} – {new Date(item.pubDate).toLocaleString()}
             </div>
             {item.description && (
-              <p style={{ fontSize: "13px", marginTop: 4, color: "#ddd" }}>
+              <p style={descriptionStyle}>
                 {item.description.slice(0, 120)}...
               </p>
             )}
