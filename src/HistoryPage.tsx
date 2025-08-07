@@ -57,7 +57,7 @@ const GraphPage: React.FC<Props> = ({ theme }) => {
     labels,
     datasets: [
       {
-        label: "Unrealized P&L (₹)",
+        label: "Unrealized P&L ($)",
         data: values,
         backgroundColor: values.map((v) =>
           v >= 0 ? "rgba(75, 192, 192, 0.6)" : "rgba(255, 99, 132, 0.6)"
@@ -93,7 +93,7 @@ const GraphPage: React.FC<Props> = ({ theme }) => {
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => `₹ ${context.formattedValue}`,
+          label: (context: any) => `$ ${context.formattedValue}`,
         },
       },
     },
@@ -102,7 +102,7 @@ const GraphPage: React.FC<Props> = ({ theme }) => {
         beginAtZero: false,
         title: {
           display: true,
-          text: "P&L (₹)",
+          text: "P&L ($)",
           font: {
             size: 14,
           },
@@ -167,15 +167,15 @@ const GraphPage: React.FC<Props> = ({ theme }) => {
               <tr key={item.holding_id}>
                 <td style={tdStyle}>{item.ticker_symbol}</td>
                 <td style={tdStyle}>{item.asset_name}</td>
-                <td style={tdStyle}>₹ {item.average_buy_price.toFixed(2)}</td>
-                <td style={tdStyle}>₹ {item.market_value.toFixed(2)}</td>
+                <td style={tdStyle}>$ {item.average_buy_price.toFixed(2)}</td>
+                <td style={tdStyle}>$ {item.market_value.toFixed(2)}</td>
                 <td
                   style={{
                     ...tdStyle,
                     color: item.unrealized_pnl >= 0 ? "green" : "red",
                   }}
                 >
-                  ₹ {item.unrealized_pnl.toFixed(2)}
+                  $ {item.unrealized_pnl.toFixed(2)}
                 </td>
               </tr>
             ))}

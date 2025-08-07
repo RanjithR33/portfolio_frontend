@@ -55,7 +55,7 @@ const AnalysisPage: React.FC<Props> = ({ theme }) => {
     labels: data.insights.top_gainers.map((g: any) => g.name),
     datasets: [
       {
-        label: "Gains (₹)",
+        label: "Gains ($)",
         data: data.insights.top_gainers.map((g: any) => g.change_amount),
         backgroundColor: "#4caf50",
       },
@@ -66,7 +66,7 @@ const AnalysisPage: React.FC<Props> = ({ theme }) => {
     labels: data.insights.top_losers.map((l: any) => l.name),
     datasets: [
       {
-        label: "Losses (₹)",
+        label: "Losses ($)",
         data: data.insights.top_losers.map((l: any) =>
           Math.abs(l.change_amount)
         ),
@@ -84,7 +84,7 @@ const AnalysisPage: React.FC<Props> = ({ theme }) => {
     ],
     datasets: [
       {
-        label: "Amount (₹)",
+        label: "Amount ($)",
         data: [
           data.performance.total_initial_investment,
           data.performance.current_holdings_worth,
